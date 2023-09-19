@@ -11,6 +11,7 @@ import {
   PanResponder,
   FlatList,
   Divider,
+  Linking,
 } from 'react-native';
 import {settings} from '../utils/settings';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
@@ -190,7 +191,7 @@ const CategoryScreen = () => {
               />
               <TextInput
                 style={styles.searchInput}
-                placeholderTextColor={"black"}
+                placeholderTextColor={'black'}
                 placeholder="Aramak istediğiniz kategorinin adını yazınız..."
                 onChangeText={text => setSearchText(text)}
               />
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginBottom: 10,
     marginHorizontal: 10,
-    color:"black",
+    color: 'black',
   },
   categoryItem: {
     marginBottom: 10,

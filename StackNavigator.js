@@ -117,7 +117,7 @@ function BottomTabs() {
             headerShown: false,
             tabBarLabel: ({focused}) => (
               <Text style={{fontSize: 13, color: focused ? 'black' : 'gray'}}>
-                Yazarlar
+                Web Sitesi
               </Text>
             ),
             tabBarIcon: ({focused}) =>
