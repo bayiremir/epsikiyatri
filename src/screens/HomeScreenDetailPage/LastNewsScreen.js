@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -10,9 +10,9 @@ import {
   Pressable,
   TouchableOpacity,
 } from 'react-native';
-import { settings } from '../../utils/settings';
+import {settings} from '../../utils/settings';
 import dateformat from 'dateformat';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {
   Bars3Icon as Bars3IconOutline,
   Squares2X2Icon as Squares2X2IconOutline,
@@ -21,7 +21,7 @@ import {
 
 const LastNewScreen = () => {
   const [mostRead, setMostRead] = useState([]);
-  const [isAlternateLayout, setIsAlternateLayout] = useState(false);
+  const [isAlternateLayout, setIsAlternateLayout] = useState(true);
 
   const navigation = useNavigation();
 
@@ -39,10 +39,10 @@ const LastNewScreen = () => {
 
   const handleItemPress = slug => {
     const cleanSlug = slug.replace('https://e-psikiyatri.com/', '');
-    navigation.navigate('ContentScreen', { slug: cleanSlug });
+    navigation.navigate('ContentScreen', {slug: cleanSlug});
   };
 
-  const renderMostReadItem = ({ item }) => {
+  const renderMostReadItem = ({item}) => {
     const formattedDate = dateformat(item.updated_at, 'dd/mm/yyyy');
 
     if (isAlternateLayout) {
@@ -59,14 +59,14 @@ const LastNewScreen = () => {
               <>
                 <Text style={styles.alternateTitleText}>{item.title}</Text>
                 <Image
-                  source={{ uri: item.image }}
+                  source={{uri: item.image}}
                   style={styles.alternateImage}
                 />
               </>
             ) : (
               <View style={styles.mostReadItem}>
                 <Image
-                  source={{ uri: item.image }}
+                  source={{uri: item.image}}
                   style={styles.mostReadImage}
                 />
                 <Text style={styles.titleBottomText}>{item.title}</Text>
@@ -84,21 +84,21 @@ const LastNewScreen = () => {
         style={styles.pressableContainer} // Ekledim
       >
         <View style={styles.mostReadItem}>
-          <Image source={{ uri: item.image }} style={styles.mostReadImage} />
+          <Image source={{uri: item.image}} style={styles.mostReadImage} />
           <Text style={styles.titleBottomText}>{item.title}</Text>
         </View>
       </Pressable>
     );
   };
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{flex: 1}}>
       <View>
-        <View style={{ marginHorizontal: 0 }}>
+        <View style={{marginHorizontal: 0}}>
           <View style={styles.featuredNewsContainer}>
             <View style={styles.featuredNewsTextContainer}>
               <View style={styles.featuredNewsWithIcon}>
                 <Text style={styles.featuredNewsText}>En Son Haberler</Text>
-                <View style={{ marginLeft: 'auto' }}>
+                <View style={{marginLeft: 'auto'}}>
                   {isAlternateLayout ? (
                     <TouchableOpacity
                       onPress={() => setIsAlternateLayout(!isAlternateLayout)}>
@@ -126,10 +126,10 @@ const LastNewScreen = () => {
           <ScrollView
             horizontal={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ width: 'auto' }}>
+            contentContainerStyle={{width: 'auto'}}>
             {mostRead.map((item, index) => (
-              <View key={index.toString()} style={{ overflow: 'hidden' }}>
-                {renderMostReadItem({ item })}
+              <View key={index.toString()} style={{overflow: 'hidden'}}>
+                {renderMostReadItem({item})}
               </View>
             ))}
           </ScrollView>
@@ -141,9 +141,9 @@ const LastNewScreen = () => {
 
 const styles = StyleSheet.create({
   mostReadImage: {
-    width: 400,
     height: settings.CARD_WIDTH,
-    width: settings.CARD_WIDTH * 2,
+    width: settings.CARD_WIDTH * 1.8,
+    margin: 10,
   },
   mostReadItem: {
     alignItems: 'center',

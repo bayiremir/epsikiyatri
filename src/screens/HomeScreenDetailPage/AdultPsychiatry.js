@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   mostReadImage: {
     resizeMode: 'contain',
     margin: 10,
-    height: settings.CARD_WIDTH ,
+    height: settings.CARD_WIDTH,
     width: settings.CARD_WIDTH * 2,
   },
   mostReadItem: {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   alternateImage: {
-    width:settings.CARD_WIDTH * 0.6,
+    width: settings.CARD_WIDTH * 0.6,
     height: settings.CARD_WIDTH / 3,
     marginRight: 10,
   },

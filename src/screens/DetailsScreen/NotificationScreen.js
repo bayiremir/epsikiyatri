@@ -1,6 +1,7 @@
 import {StyleSheet, Text, View, Button} from 'react-native';
 import React from 'react';
 import firestore from '@react-native-firebase/firestore';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 async function sendNotificationsToAll() {
   try {
@@ -56,12 +57,12 @@ async function sendNotification(token) {
 
 const NotificationScreen = () => {
   return (
-    <View>
+    <SafeAreaView>
       <Button
         title="Herkese Bildirim Gönder"
         onPress={sendNotificationsToAll}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
