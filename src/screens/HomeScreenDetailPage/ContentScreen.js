@@ -130,7 +130,7 @@ const ContentScreen = ({route}) => {
                   }}
                   style={{
                     width: '100%',
-                    height: 200,
+                    height: settings.CARD_WIDTH,
                     borderRadius: 30,
                     marginBottom: 20,
                   }}
@@ -189,7 +189,11 @@ const ContentScreen = ({route}) => {
                 }}
                 baseStyle={{lineHeight: 24, color: 'black'}}
                 source={{
-                  html: content?.post.replace(/<iframe.*<\/iframe>/, '') || '',
+                  html:
+                    content?.post.replace(
+                      /<iframe[^>]*>([\s\S]*?)<\/iframe>/g,
+                      '',
+                    ) || '',
                 }}
               />
             </View>
@@ -319,5 +323,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
     justifyContent: 'center',
     marginLeft: 16,
+  },
+  iconWithShadow: {
+    shadowColor: '#00000040',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 4, // Only for Android
   },
 });

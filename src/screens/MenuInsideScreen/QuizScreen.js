@@ -58,7 +58,6 @@ const QuizScreen = () => {
         },
       );
       const data = await response.json();
-      console.log('API Response:', data);
       if (data && data.code) {
         setCode(data.code);
       } else {
@@ -179,15 +178,7 @@ const QuizScreen = () => {
     answers.forEach((answer, index) => {
       params.append(`test_data[${index}][id]`, answer.question_id);
       params.append(`test_data[${index}][answer]`, answer.answer_id);
-      console.log(
-        index,
-        'id',
-        answer.question_id,
-        'answer:',
-        answer.answer_id,
-        code,
-        selectedTestSlug,
-      );
+      
     });
 
     try {

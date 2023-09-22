@@ -2,7 +2,7 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Text, View} from 'react-native';
+import {Dimensions, Text, View, StyleSheet} from 'react-native';
 import HomeScreen from './src/screens/HomeScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import YazarScreen from './src/screens/YazarScreen';
@@ -32,9 +32,21 @@ import {
   GlobeAltIcon as GlobeAltIconSolidOutline,
 } from 'react-native-heroicons/solid';
 import NotificationScreen from './src/screens/DetailsScreen/NotificationScreen';
+import CategoryCloud from './src/screens/MenuInsideScreen/CategoryCloud';
 
 function BottomTabs() {
   const Tab = createBottomTabNavigator();
+
+  const {width, height} = Dimensions.get('window');
+  const isTablet = width / height < 0.6;
+  const tabletPadding = isTablet ? 0 : 15; // Örnek olarak 20 değerini atadım.
+
+  const styles = StyleSheet.create({
+    tabBarLabelStyle: {
+      fontSize: 13,
+      padding: tabletPadding,
+    },
+  });
 
   return (
     <>
@@ -46,7 +58,7 @@ function BottomTabs() {
             bottom: 0,
             left: 0,
             right: 0,
-            elevation: 4,
+            elevation: 3,
             borderTopWidth: 0,
           },
         }}>
@@ -56,7 +68,11 @@ function BottomTabs() {
           options={{
             headerShown: false,
             tabBarLabel: ({focused}) => (
-              <Text style={{fontSize: 13, color: focused ? 'black' : 'gray'}}>
+              <Text
+                style={[
+                  styles.tabBarLabelStyle,
+                  {color: focused ? 'black' : 'gray'},
+                ]}>
                 Ana Sayfa
               </Text>
             ),
@@ -74,7 +90,11 @@ function BottomTabs() {
           options={{
             headerShown: false,
             tabBarLabel: ({focused}) => (
-              <Text style={{fontSize: 13, color: focused ? 'black' : 'gray'}}>
+              <Text
+                style={[
+                  styles.tabBarLabelStyle,
+                  {color: focused ? 'black' : 'gray'},
+                ]}>
                 Kategori
               </Text>
             ),
@@ -97,7 +117,11 @@ function BottomTabs() {
           options={{
             headerShown: false,
             tabBarLabel: ({focused}) => (
-              <Text style={{fontSize: 13, color: focused ? 'black' : 'gray'}}>
+              <Text
+                style={[
+                  styles.tabBarLabelStyle,
+                  {color: focused ? 'black' : 'gray'},
+                ]}>
                 Yazarlar
               </Text>
             ),
@@ -116,7 +140,11 @@ function BottomTabs() {
           options={{
             headerShown: false,
             tabBarLabel: ({focused}) => (
-              <Text style={{fontSize: 13, color: focused ? 'black' : 'gray'}}>
+              <Text
+                style={[
+                  styles.tabBarLabelStyle,
+                  {color: focused ? 'black' : 'gray'},
+                ]}>
                 Web Sitesi
               </Text>
             ),
@@ -212,6 +240,11 @@ function Navigation() {
         <Stack.Screen
           name="NotificationScreen"
           component={NotificationScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="CategoryCloud"
+          component={CategoryCloud}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

@@ -108,7 +108,7 @@ const ContentInside = ({route}) => {
                   }}
                   style={{
                     width: '100%',
-                    height: 200,
+                    height: settings.CARD_WIDTH,
                     borderRadius: 30,
                     marginBottom: 20,
                   }}

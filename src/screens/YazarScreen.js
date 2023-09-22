@@ -53,11 +53,11 @@ const YazarScreen = ({navigation}) => {
       icon: require('../../assets/photo/icons/care.png'),
       screen: 'MedicalUnits',
     },
-    {
-      text: 'Psikolojik Testler',
-      icon: require('../../assets/photo/icons/quiz.png'),
-      screen: 'QuizScreen',
-    },
+    // {
+    //   text: 'Psikolojik Testler',
+    //   icon: require('../../assets/photo/icons/quiz.png'),
+    //   screen: 'QuizScreen',
+    // },
     {
       text: 'Hakkımızda',
       slug: '/hakimizda',
@@ -88,6 +88,11 @@ const YazarScreen = ({navigation}) => {
       text: 'Köşe Yazarları',
       icon: require('../../assets/photo/icons/content-writing.png'),
       screen: 'CornerWriterScreen',
+    },
+    {
+      text: 'Kategori Bulutu',
+      icon: require('../../assets/photo/icons/cloud.png'),
+      screen: 'CategoryCloud',
     },
   ];
 
@@ -141,121 +146,124 @@ const YazarScreen = ({navigation}) => {
   return (
     <>
       <RandevuAl />
-      <ScrollView style={styles.container}>
-        <View style={styles.logoContainer}>
-          <TouchableOpacity
-            style={{
-              position: 'absolute',
-              left: 20,
-            }}
-            onPress={() => setMenuOpen(true)}>
-            <Bars3IconOutline color="black" width={30} height={30} />
-          </TouchableOpacity>
-          <Image
-            source={require('../../assets/photo/logo.png')}
-            style={styles.logo}
-          />
-        </View>
-        <View style={styles.mostReadHeaderContainer}>
-          <LinearGradient
-            colors={['rgba(64,183,176,1)', 'rgba(64,183,176,0.2)']}
-            start={{x: 0, y: 0}}
-            end={{x: 1.4, y: 0}}
-            style={styles.rectangleContainer}>
-            <Text style={styles.headerText}>Yazarlar</Text>
-          </LinearGradient>
-        </View>
-        <View style={styles.searchContainer}>
-          <View style={styles.searchInputContainer}>
-            <MagnifyingGlassIconOutline
-              width={25}
-              height={20}
-              left={3}
-              color="black"
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholderTextColor={"black"}
-              placeholder="Aramak istediğiniz yazarı yazınız..."
-              onChangeText={text => setSearchText(text)}
+      <View style={{flex: 1, marginBottom: 80}}>
+        <ScrollView style={styles.container}>
+          <View style={styles.logoContainer}>
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                left: 20,
+                paddingTop: 40,
+              }}
+              onPress={() => setMenuOpen(true)}>
+              <Bars3IconOutline color="black" width={30} height={30} />
+            </TouchableOpacity>
+            <Image
+              source={require('../../assets/photo/logo.png')}
+              style={styles.logo}
             />
           </View>
-        </View>
-        <View style={styles.flatListContainer}>
-          <FlatList
-            data={filteredYazarlar}
-            renderItem={renderYazar}
-            keyExtractor={item => item.id.toString()}
-            numColumns={2}
-            contentContainerStyle={styles.flatListContent}
-            scrollEnabled={false}
-          />
-        </View>
-        <TouchableOpacity onPress={loadMore} style={styles.loadMoreButton}>
-          <Text style={styles.loadMoreText}>Daha Fazla Yükle</Text>
-        </TouchableOpacity>
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isMenuOpen}
-          onRequestClose={() => {
-            setMenuOpen(!isMenuOpen);
-          }}>
-          <View style={styles.container}>
-            <TouchableOpacity
-              style={styles.closeArea}
-              onPress={() => setMenuOpen(false)}></TouchableOpacity>
-
-            <View
-              style={styles.modalView}
-              onStartShouldSetResponder={() => true}>
-              <Image
-                source={require('../../assets/photo/logo.png')}
-                style={styles.logo}
+          <View style={styles.mostReadHeaderContainer}>
+            <LinearGradient
+              colors={['rgba(64,183,176,1)', 'rgba(64,183,176,0.2)']}
+              start={{x: 0, y: 0}}
+              end={{x: 1.4, y: 0}}
+              style={styles.rectangleContainer}>
+              <Text style={styles.headerText}>Yazarlar</Text>
+            </LinearGradient>
+          </View>
+          <View style={styles.searchContainer}>
+            <View style={styles.searchInputContainer}>
+              <MagnifyingGlassIconOutline
+                width={25}
+                height={20}
+                left={3}
+                color="black"
               />
-
-              <View
-                {...panResponder.panHandlers}
-                style={styles.draggableArea}></View>
-
-              <FlatList
-                data={menuData}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (item.url) {
-                        Linking.openURL(item.url);
-                      } else if (item.screen) {
-                        navigation.navigate(item.screen, {slug: item.slug});
-                      }
-                    }}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        padding: 15,
-                      }}>
-                      <Image
-                        source={item.icon}
-                        style={{width: 30, height: 30, marginRight: 15}}
-                      />
-                      <Text>{item.text}</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                ItemSeparatorComponent={() => (
-                  <View style={{height: 1, backgroundColor: '#E0E0E0'}} />
-                )}
+              <TextInput
+                style={styles.searchInput}
+                placeholderTextColor={'black'}
+                placeholder="Aramak istediğiniz yazarı yazınız..."
+                onChangeText={text => setSearchText(text)}
               />
-
-              <View>
-                <Text style={{textAlign: 'center'}}>Versiyon 0.1</Text>
-              </View>
             </View>
           </View>
-        </Modal>
-      </ScrollView>
+          <View style={styles.flatListContainer}>
+            <FlatList
+              data={filteredYazarlar}
+              renderItem={renderYazar}
+              keyExtractor={item => item.id.toString()}
+              numColumns={2}
+              contentContainerStyle={styles.flatListContent}
+              scrollEnabled={false}
+            />
+          </View>
+          <TouchableOpacity onPress={loadMore} style={styles.loadMoreButton}>
+            <Text style={styles.loadMoreText}>Daha Fazla Yükle</Text>
+          </TouchableOpacity>
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={isMenuOpen}
+            onRequestClose={() => {
+              setMenuOpen(!isMenuOpen);
+            }}>
+            <View style={styles.container}>
+              <TouchableOpacity
+                style={styles.closeArea}
+                onPress={() => setMenuOpen(false)}></TouchableOpacity>
+
+              <View
+                style={styles.modalView}
+                onStartShouldSetResponder={() => true}>
+                <Image
+                  source={require('../../assets/photo/logo.png')}
+                  style={styles.logo}
+                />
+
+                <View
+                  {...panResponder.panHandlers}
+                  style={styles.draggableArea}></View>
+
+                <FlatList
+                  data={menuData}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (item.url) {
+                          Linking.openURL(item.url);
+                        } else if (item.screen) {
+                          navigation.navigate(item.screen, {slug: item.slug});
+                        }
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          padding: 15,
+                        }}>
+                        <Image
+                          source={item.icon}
+                          style={{width: 30, height: 30, marginRight: 15}}
+                        />
+                        <Text>{item.text}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                  ItemSeparatorComponent={() => (
+                    <View style={{height: 1, backgroundColor: '#E0E0E0'}} />
+                  )}
+                />
+
+                <View>
+                  <Text style={{textAlign: 'center'}}>Versiyon 0.1</Text>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        </ScrollView>
+      </View>
     </>
   );
 };
@@ -265,7 +273,6 @@ export default YazarScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginBottom: 50,
   },
   modalContainer: {
     flex: 1,
@@ -384,5 +391,6 @@ const styles = StyleSheet.create({
     alignItems: 'center', // elemanları dikey olarak merkeze hizalamak için
     justifyContent: 'center',
     backgroundColor: 'rgba(64,183,176,0.3)',
+    paddingTop: 40,
   },
 });

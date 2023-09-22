@@ -114,11 +114,11 @@ const CategoryScreen = () => {
       icon: require('../../assets/photo/icons/care.png'),
       screen: 'MedicalUnits',
     },
-    {
-      text: 'Psikolojik Testler',
-      icon: require('../../assets/photo/icons/quiz.png'),
-      screen: 'QuizScreen',
-    },
+    // {
+    //   text: 'Psikolojik Testler',
+    //   icon: require('../../assets/photo/icons/quiz.png'),
+    //   screen: 'QuizScreen',
+    // },
     {
       text: 'Hakkımızda',
       slug: '/hakimizda',
@@ -150,6 +150,11 @@ const CategoryScreen = () => {
       icon: require('../../assets/photo/icons/content-writing.png'),
       screen: 'CornerWriterScreen',
     },
+    {
+      text: 'Kategori Bulutu',
+      icon: require('../../assets/photo/icons/cloud.png'),
+      screen: 'CategoryCloud',
+    },
   ];
 
   return (
@@ -162,6 +167,7 @@ const CategoryScreen = () => {
               style={{
                 position: 'absolute',
                 left: 20,
+                paddingTop: 40,
               }}
               onPress={() => setMenuOpen(true)}>
               <Bars3IconOutline color="black" width={30} height={30} />
@@ -443,5 +449,6 @@ const styles = StyleSheet.create({
     alignItems: 'center', // elemanları dikey olarak merkeze hizalamak için
     justifyContent: 'center',
     backgroundColor: 'rgba(64,183,176,0.3)',
+    paddingTop: 40,
   },
 });

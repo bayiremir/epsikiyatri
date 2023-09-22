@@ -38,6 +38,7 @@ const HomeScreen = ({navigation}) => {
       icon: require('../../assets/photo/icons/care.png'),
       screen: 'MedicalUnits',
     },
+
     // {
     //   text: 'Psikolojik Testler',
     //   icon: require('../../assets/photo/icons/quiz.png'),
@@ -73,6 +74,11 @@ const HomeScreen = ({navigation}) => {
       text: 'Köşe Yazarları',
       icon: require('../../assets/photo/icons/content-writing.png'),
       screen: 'CornerWriterScreen',
+    },
+    {
+      text: 'Kategori Bulutu',
+      icon: require('../../assets/photo/icons/cloud.png'),
+      screen: 'CategoryCloud',
     },
   ];
 
@@ -217,6 +223,7 @@ const HomeScreen = ({navigation}) => {
             style={{
               position: 'absolute',
               left: 20,
+              paddingTop: 40,
             }}
             onPress={() => setMenuOpen(true)}>
             <Bars3IconOutline color="black" width={30} height={30} />
@@ -359,10 +366,11 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: '100%',
     height: settings.CARD_WIDTH / 1.9,
-    flexDirection: 'row', // elemanları yatay olarak sıralamak için
-    alignItems: 'center', // elemanları dikey olarak merkeze hizalamak için
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'white',
+    paddingTop: 40,
   },
   sliderContainer: {
     overflow: 'hidden',
