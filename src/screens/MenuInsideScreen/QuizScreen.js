@@ -19,8 +19,6 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import { colors } from '../../utils/colors';
-import { ScrollView } from 'react-native-gesture-handler';
 
 const QuizScreen = () => {
   const [email, setEmail] = useState('');
@@ -42,10 +40,9 @@ const QuizScreen = () => {
   const navigation = useNavigation();
 
   const sendEmail = async () => {
-    // Check if the email contains the "@" symbol
-    if (!email.includes('@')) {
+    if (!email.includes('@g')) {
       setError('Please enter a valid email address.');
-      return; // Exit the function early
+      return; 
     }
 
     setIsLoading(true);
@@ -62,37 +59,28 @@ const QuizScreen = () => {
             email: email,
             referer: 'mobileApp',
             form_page_url: 'mobileApp',
-            test_id: 29, // Replace with the actual test ID
+            test_id: 29, 
           }),
         }
       );
 
-      // Parse the response data as JSON
       const data = await response.json();
 
-      // Check if the response contains a "code" property
       if (data && data.code) {
-        // Set the "code" state variable with the received code
         setCode(data.code);
       } else {
         console.error('Unexpected format:', data);
-        // Handle unexpected response format
       }
 
-      // Set the "testId" state variable with the received test ID or a default value
       setTestId(data.testId || 'yourTestId');
 
-      // Call the "fetchTests" function to update test data
       fetchTests();
 
-      // Set the "isEmailSent" state variable to true
       setIsEmailSent(true);
     } catch (error) {
       console.error('sendEmail Error:', error);
-      // Handle any errors that occur during the request
       setError('Email could not be sent. Please try again.');
     } finally {
-      // Turn off loading indicator regardless of success or failure
       setIsLoading(false);
     }
   };
@@ -122,7 +110,7 @@ const QuizScreen = () => {
       .then(data => {
         setQuestions(data);
         setIsLoading(false);
-        setCurrentIndex(0); // Sorular yüklendikten sonra indeksi sıfırla
+        setCurrentIndex(0); 
       })
       .catch(error => {
         console.error(`fetchQuestions Error for ${slug}:`, error);
@@ -227,7 +215,7 @@ const QuizScreen = () => {
   };
 
   const handleCompleteTest = async () => {
-    setIsLoading(true); // Turn on the loading state
+    setIsLoading(true); 
 
     const formattedAnswers = testData.map(item => ({
       question_id: item.id,
@@ -236,7 +224,7 @@ const QuizScreen = () => {
 
     try {
       await submitTest(code, formattedAnswers);
-      setIsLoading(false); // Turn off the loading state
+      setIsLoading(false); 
 
       Alert.alert(
         'Test Tamamlandı',
@@ -250,7 +238,7 @@ const QuizScreen = () => {
         { cancelable: false },
       );
     } catch (error) {
-      setIsLoading(false); // Turn off the loading state in case of error
+      setIsLoading(false); 
       console.error('An error occurred:', error);
     }
   };
@@ -432,7 +420,7 @@ const QuizScreen = () => {
                 <Modal
                   transparent={true}
                   visible={isLoading}
-                  onRequestClose={() => { }} // Required on Android
+                  onRequestClose={() => { }}
                 >
                   <View
                     style={{
@@ -461,7 +449,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   centeredContainer: {
-    justifyContent: 'flex-start', // bu satırı değiştirdik
+    justifyContent: 'flex-start', 
     alignItems: 'center',
   },
   logoContainer: {
