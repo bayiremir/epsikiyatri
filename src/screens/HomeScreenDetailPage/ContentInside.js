@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,16 +11,17 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import RenderHtml from 'react-native-render-html';
-import {useNavigation} from '@react-navigation/native';
-import {WebView} from 'react-native-webview';
-import {colors} from '../../utils/colors';
-import {settings} from '../../utils/settings';
+import { useNavigation } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
+import { settings } from '../../utils/settings';
 import GoUp from '../../components/GoUp/GoUp';
+import LottieView from 'lottie-react-native';
+import { ArrowLeftIcon as ArrowLeftIconOutline } from 'react-native-heroicons/outline';
 
-const ContentInside = ({route}) => {
+const ContentInside = ({ route }) => {
   const navigation = useNavigation();
   const [content, setContent] = useState(null);
-  const {slug} = route.params;
+  const { slug } = route.params;
   const animation = useRef(null);
   const scrollViewRef = useRef();
   const HeaderHeight = Dimensions.get('screen').height * 0.3;
@@ -55,7 +56,7 @@ const ContentInside = ({route}) => {
     fetchData();
   }, [slug]);
 
-  const {width} = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const fixedImageURL = content?.image.startsWith('about://')
     ? content.image.replace('about://', 'https://')
     : content?.image || 'https://www.example.com/default-image.jpg';
@@ -69,10 +70,10 @@ const ContentInside = ({route}) => {
   const videoIframe = getVideoIframe(content?.post || '');
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <GoUp scrollViewRef={scrollViewRef}></GoUp>
       {content ? (
-        <ScrollView style={{backgroundColor: 'white'}} ref={scrollViewRef}>
+        <ScrollView style={{ backgroundColor: 'white' }} ref={scrollViewRef}>
           <View
             style={{
               position: 'relative',
@@ -90,8 +91,13 @@ const ContentInside = ({route}) => {
               }}>
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
-                style={{position: 'absolute', left: 16, top: 60}}>
-                <AntDesign name="arrowleft" size={32} color="black" />
+                style={{ position: 'absolute', left: 26, top: 60 }}>
+                <ArrowLeftIconOutline
+                  width={35}
+                  height={35}
+                  right={10}
+                  color="black"
+                />
               </TouchableOpacity>
 
               <Image
@@ -102,21 +108,21 @@ const ContentInside = ({route}) => {
             <View style={styles.container}>
               {fixedImageURL !==
                 'https://www.example.com/default-image.jpg' && (
-                <Image
-                  source={{
-                    uri: fixedImageURL,
-                  }}
-                  style={{
-                    width: '100%',
-                    height: settings.CARD_WIDTH,
-                    borderRadius: 30,
-                    marginBottom: 20,
-                  }}
-                  onError={error => {
-                    console.log('Image loading error:', error);
-                  }}
-                />
-              )}
+                  <Image
+                    source={{
+                      uri: fixedImageURL,
+                    }}
+                    style={{
+                      width: '100%',
+                      height: settings.CARD_WIDTH,
+                      borderRadius: 30,
+                      marginBottom: 20,
+                    }}
+                    onError={error => {
+                      console.log('Image loading error:', error);
+                    }}
+                  />
+                )}
               <Text
                 style={{
                   fontSize: 28,
@@ -155,26 +161,26 @@ const ContentInside = ({route}) => {
                   a: {
                     paddingTop: 10,
                   },
-                  h1: {paddingTop: 20},
-                  h2: {paddingTop: 20},
-                  h3: {paddingTop: 30},
-                  h4: {paddingTop: 20},
-                  h5: {paddingTop: 20},
-                  h6: {paddingTop: 30},
+                  h1: { paddingTop: 20 },
+                  h2: { paddingTop: 20 },
+                  h3: { paddingTop: 30 },
+                  h4: { paddingTop: 20 },
+                  h5: { paddingTop: 20 },
+                  h6: { paddingTop: 30 },
                 }}
-                baseStyle={{lineHeight: 24}}
+                baseStyle={{ lineHeight: 24 }}
                 source={{
                   html: content?.post.replace(/<iframe.*<\/iframe>/, '') || '',
                 }}
               />
             </View>
           </View>
-          <View style={{flexDirection: 'row', flexWrap: 'wrap', margin: 20}}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', margin: 20 }}>
             {content?.contents?.map((item, index) => (
               <TouchableOpacity
                 key={item.id}
                 onPress={() =>
-                  navigation.navigate('ContentInside', {slug: item.slug})
+                  navigation.navigate('ContentInside', { slug: item.slug })
                 }
                 style={[
                   {
@@ -194,8 +200,8 @@ const ContentInside = ({route}) => {
                     borderRadius: 15,
                   }}
                 />
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={{fontSize: 12, textAlign: 'center', margin: 10}}>
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontSize: 12, textAlign: 'center', margin: 10 }}>
                     {item.title}
                   </Text>
                 </View>
@@ -273,7 +279,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     elevation: 4,
     shadowColor: '#00000040',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 4,
     alignItems: 'center',
