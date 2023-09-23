@@ -170,7 +170,11 @@ const ContentInside = ({ route }) => {
                 }}
                 baseStyle={{ lineHeight: 24 }}
                 source={{
-                  html: content?.post.replace(/<iframe.*<\/iframe>/, '') || '',
+                  html:
+                    content?.post.replace(
+                      /<iframe[^>]*>([\s\S]*?)<\/iframe>/g,
+                      '',
+                    ) || '',
                 }}
               />
             </View>

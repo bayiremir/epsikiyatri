@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,16 +12,16 @@ import {
   FlatList,
   Divider,
 } from 'react-native';
-import {settings} from '../utils/settings';
+import { settings } from '../utils/settings';
 import RandevuAl from '../components/RandevuAl/RandevuAl';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
   Bars3Icon as Bars3IconOutline,
   MagnifyingGlassIcon as MagnifyingGlassIconOutline,
 } from 'react-native-heroicons/outline';
 
-const YazarScreen = ({navigation}) => {
+const YazarScreen = ({ navigation }) => {
   const [isMenuOpen, setMenuOpen] = React.useState(false);
   const isFocused = useIsFocused();
   const [yazarlar, setYazarlar] = useState([]);
@@ -53,11 +53,11 @@ const YazarScreen = ({navigation}) => {
       icon: require('../../assets/photo/icons/care.png'),
       screen: 'MedicalUnits',
     },
-    // {
-    //   text: 'Psikolojik Testler',
-    //   icon: require('../../assets/photo/icons/quiz.png'),
-    //   screen: 'QuizScreen',
-    // },
+    {
+      text: 'Psikolojik Testler',
+      icon: require('../../assets/photo/icons/quiz.png'),
+      screen: 'QuizScreen',
+    },
     {
       text: 'Hakkımızda',
       slug: '/hakimizda',
@@ -105,13 +105,13 @@ const YazarScreen = ({navigation}) => {
       .catch(error => console.error(error));
   }, []);
 
-  const renderYazar = ({item}) => (
+  const renderYazar = ({ item }) => (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate('YazarDetail', {slug: item.slug});
+        navigation.navigate('YazarDetail', { slug: item.slug });
       }}>
       <View style={styles.homeScreenCardContainer}>
-        <Image source={{uri: item.image}} style={styles.yazarImage} />
+        <Image source={{ uri: item.image }} style={styles.yazarImage} />
         <Text style={styles.yazarName}>
           {item.title} {item.name} {item.surname}
         </Text>
@@ -136,17 +136,17 @@ const YazarScreen = ({navigation}) => {
 
   const filteredYazarlar = searchText
     ? yazarlar
-        .filter(yazar => {
-          const fullName = `${yazar.title} ${yazar.name} ${yazar.surname}`;
-          return normalizeText(fullName).includes(normalizeText(searchText));
-        })
-        .slice(0, (currentPage + 1) * ITEMS_PER_PAGE) // Sayfa sayısına göre dilimleme
+      .filter(yazar => {
+        const fullName = `${yazar.title} ${yazar.name} ${yazar.surname}`;
+        return normalizeText(fullName).includes(normalizeText(searchText));
+      })
+      .slice(0, (currentPage + 1) * ITEMS_PER_PAGE) // Sayfa sayısına göre dilimleme
     : yazarlar.slice(0, (currentPage + 1) * ITEMS_PER_PAGE);
 
   return (
     <>
       <RandevuAl />
-      <View style={{flex: 1, marginBottom: 80}}>
+      <View style={{ flex: 1, marginBottom: 80 }}>
         <ScrollView style={styles.container}>
           <View style={styles.logoContainer}>
             <TouchableOpacity
@@ -166,8 +166,8 @@ const YazarScreen = ({navigation}) => {
           <View style={styles.mostReadHeaderContainer}>
             <LinearGradient
               colors={['rgba(64,183,176,1)', 'rgba(64,183,176,0.2)']}
-              start={{x: 0, y: 0}}
-              end={{x: 1.4, y: 0}}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1.4, y: 0 }}
               style={styles.rectangleContainer}>
               <Text style={styles.headerText}>Yazarlar</Text>
             </LinearGradient>
@@ -228,13 +228,13 @@ const YazarScreen = ({navigation}) => {
                 <FlatList
                   data={menuData}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({item}) => (
+                  renderItem={({ item }) => (
                     <TouchableOpacity
                       onPress={() => {
                         if (item.url) {
                           Linking.openURL(item.url);
                         } else if (item.screen) {
-                          navigation.navigate(item.screen, {slug: item.slug});
+                          navigation.navigate(item.screen, { slug: item.slug });
                         }
                       }}>
                       <View
@@ -245,19 +245,19 @@ const YazarScreen = ({navigation}) => {
                         }}>
                         <Image
                           source={item.icon}
-                          style={{width: 30, height: 30, marginRight: 15}}
+                          style={{ width: 30, height: 30, marginRight: 15 }}
                         />
                         <Text>{item.text}</Text>
                       </View>
                     </TouchableOpacity>
                   )}
                   ItemSeparatorComponent={() => (
-                    <View style={{height: 1, backgroundColor: '#E0E0E0'}} />
+                    <View style={{ height: 1, backgroundColor: '#E0E0E0' }} />
                   )}
                 />
 
                 <View>
-                  <Text style={{textAlign: 'center'}}>Versiyon 0.1</Text>
+                  <Text style={{ textAlign: 'center' }}>Versiyon 0.1</Text>
                 </View>
               </View>
             </View>

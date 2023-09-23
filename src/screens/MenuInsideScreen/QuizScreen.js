@@ -1,24 +1,26 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Button,
-  TouchableOpacity,
   TextInput,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
   FlatList,
-  Image,
-  Alert,
   Modal,
   ActivityIndicator,
+  Image
 } from 'react-native';
-import {settings} from '../../utils/settings';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {ArrowLeftIcon as ArrowLeftIconOutline} from 'react-native-heroicons/outline';
+import { settings } from '../../utils/settings';
+import { ArrowLeftIcon as ArrowLeftIconOutline } from 'react-native-heroicons/outline';
 import {
   NavigationHelpersContext,
   useNavigation,
 } from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
+import { colors } from '../../utils/colors';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const QuizScreen = () => {
   const [email, setEmail] = useState('');
@@ -40,8 +42,15 @@ const QuizScreen = () => {
   const navigation = useNavigation();
 
   const sendEmail = async () => {
+    // Check if the email contains the "@" symbol
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address.');
+      return; // Exit the function early
+    }
+
     setIsLoading(true);
     try {
+      // Send a POST request to the API
       const response = await fetch(
         'https://npistanbul.com/api/tr/mobile-test-create',
         {
@@ -53,27 +62,41 @@ const QuizScreen = () => {
             email: email,
             referer: 'mobileApp',
             form_page_url: 'mobileApp',
-            test_id: 29, // Seçilen testin id'si
+            test_id: 29, // Replace with the actual test ID
           }),
-        },
+        }
       );
+
+      // Parse the response data as JSON
       const data = await response.json();
+
+      // Check if the response contains a "code" property
       if (data && data.code) {
+        // Set the "code" state variable with the received code
         setCode(data.code);
       } else {
         console.error('Unexpected format:', data);
-        // Beklenmeyen bir format varsa kod burada duracak.
+        // Handle unexpected response format
       }
+
+      // Set the "testId" state variable with the received test ID or a default value
       setTestId(data.testId || 'yourTestId');
+
+      // Call the "fetchTests" function to update test data
       fetchTests();
+
+      // Set the "isEmailSent" state variable to true
       setIsEmailSent(true);
     } catch (error) {
       console.error('sendEmail Error:', error);
+      // Handle any errors that occur during the request
       setError('Email could not be sent. Please try again.');
     } finally {
+      // Turn off loading indicator regardless of success or failure
       setIsLoading(false);
     }
   };
+
   const fetchTests = () => {
     fetch('https://npistanbul.com/api/tr/tests?token=1')
       .then(res => res.json())
@@ -150,7 +173,7 @@ const QuizScreen = () => {
 
     setAnswers(prevAnswers => ({
       ...prevAnswers,
-      [currentIndex]: {answer, points: newPoints},
+      [currentIndex]: { answer, points: newPoints },
     }));
   };
 
@@ -178,7 +201,7 @@ const QuizScreen = () => {
     answers.forEach((answer, index) => {
       params.append(`test_data[${index}][id]`, answer.question_id);
       params.append(`test_data[${index}][answer]`, answer.answer_id);
-      
+
     });
 
     try {
@@ -186,7 +209,7 @@ const QuizScreen = () => {
         'https://npistanbul.com/api/tr/test-create',
         {
           method: 'POST',
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: params.toString(),
         },
       );
@@ -224,7 +247,7 @@ const QuizScreen = () => {
             onPress: () => navigation.navigate('HomeScreen'),
           },
         ],
-        {cancelable: false},
+        { cancelable: false },
       );
     } catch (error) {
       setIsLoading(false); // Turn off the loading state in case of error
@@ -233,6 +256,7 @@ const QuizScreen = () => {
   };
 
   return (
+
     <View style={styles.container}>
       <SafeAreaView style={styles.centeredContainer}>
         {!isEmailSent ? (
@@ -245,7 +269,7 @@ const QuizScreen = () => {
               <TouchableOpacity
                 style={styles.menuIcon}
                 onPress={() => navigation.goBack()}>
-                <AntDesign name="arrowleft" size={32} color="black" />
+                <ArrowLeftIconOutline name="arrowleft" size={32} color="black" />
               </TouchableOpacity>
             </View>
             <View>
@@ -260,7 +284,7 @@ const QuizScreen = () => {
               </Text>
             </View>
             <View>
-              <Text style={{paddingTop: 10, margin: 10, lineHeight: 18}}>
+              <Text style={{ paddingTop: 10, margin: 22, lineHeight: 18 }}>
                 Depresyon; ciddi, psikolojik, fizyolojik sonuçlara yer açan
                 psikiyatrik bir hastalıktır. Depresyon belirtileri; iştahsızlık,
                 uyku bozulması, günlük aktiviteleri yapamaması, sürekli yorgun
@@ -281,6 +305,11 @@ const QuizScreen = () => {
                 Test sonucunuzun bir uzman tarafından değerlendirilmeden, size
                 mail atılacağını önemle belirtmek isteriz. Sağlıklı günler
                 dileriz.
+
+              </Text>
+              <Text style={{ margin: 22, lineHeight: 18 }}>
+                Teste başlamadan önce, test sonuçlarınızın gönderileceği e-posta adresini giriniz.
+
               </Text>
             </View>
             <TextInput
@@ -290,7 +319,7 @@ const QuizScreen = () => {
               style={styles.textInputStyle}
             />
             <Button title="Testlere Göz At" onPress={sendEmail} />
-            {error && <Text style={{color: 'red'}}>{error}</Text>}
+            {error && <Text style={{ color: 'red' }}>Lütfen Doğru bir e-Mail adresi giriniz.</Text>}
           </>
         ) : (
           <>
@@ -302,7 +331,6 @@ const QuizScreen = () => {
               <TouchableOpacity
                 style={styles.menuIcon}
                 onPress={() => navigation.goBack()}>
-                <AntDesign name="arrowleft" size={32} color="black" />
               </TouchableOpacity>
             </View>
             {isLoading ? (
@@ -315,7 +343,7 @@ const QuizScreen = () => {
               <FlatList
                 data={tests}
                 keyExtractor={item => item.id.toString()}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() => {
                       setSelectedTestId(item.id);
@@ -372,7 +400,7 @@ const QuizScreen = () => {
                           <View style={styles.emptyDot} />
                         )}
                       </View>
-                      <Text>{option.title}</Text>
+                      <Text style={{ fontSize: 20, color: "black", textAlign: "center", }}>{option.title}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -404,7 +432,7 @@ const QuizScreen = () => {
                 <Modal
                   transparent={true}
                   visible={isLoading}
-                  onRequestClose={() => {}} // Required on Android
+                  onRequestClose={() => { }} // Required on Android
                 >
                   <View
                     style={{
@@ -422,6 +450,7 @@ const QuizScreen = () => {
         )}
       </SafeAreaView>
     </View>
+
   );
 };
 
@@ -451,29 +480,37 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   questionText: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: '500',
     width: '100%',
+    height: settings.CARD_WIDTH * 0.7,
     textAlign: 'left',
     paddingLeft: 10,
-    paddingBottom: 30,
   },
   questionContainer: {
     backgroundColor: '#fff',
-    borderRadius: 10,
     width: settings.CARD_WIDTH * 2,
-    height: settings.CARD_WIDTH * 2.3,
+    height: settings.CARD_WIDTH * 3.2,
     padding: 20,
   },
   option: {
+    borderWidth: 1,
+    borderColor: "rgba(63, 100, 71, 0.8)",
+    width: settings.CARD_WIDTH * 1.7,
+    height: settings.CARD_WIDTH * 0.3,
     flexDirection: 'row',
     alignItems: 'center',
     margin: 10,
     padding: 15,
-    backgroundColor: '#ddd',
-    borderRadius: 10,
+    backgroundColor: "rgba(63, 129, 71, 0.3)",
+    borderRadius: 20,
+    marginTop: 20,
   },
-  selected: {},
+  selected: {
+    borderWidth: 2,
+    borderColor: "rgba(63, 249, 71, 0.6)",
+    backgroundColor: "rgba(64,183,176,0.2)",
+  },
   scoreText: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -512,12 +549,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: 'black',
+
   },
   filledDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     backgroundColor: 'black',
+
   },
   logo: {
     resizeMode: 'contain',
