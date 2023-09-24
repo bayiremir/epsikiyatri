@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  Button,
+  Linking,
   TextInput,
   StyleSheet,
   SafeAreaView,
@@ -10,7 +10,8 @@ import {
   FlatList,
   Modal,
   ActivityIndicator,
-  Image
+  Image,
+  Alert,
 } from 'react-native';
 import { settings } from '../../utils/settings';
 import { ArrowLeftIcon as ArrowLeftIconOutline } from 'react-native-heroicons/outline';
@@ -22,6 +23,7 @@ import LottieView from 'lottie-react-native';
 
 const QuizScreen = () => {
   const [email, setEmail] = useState('');
+  const [isModalVisible, setModalVisible] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [testId, setTestId] = useState(null);
   const [testData, setTestData] = useState([]);
@@ -38,11 +40,20 @@ const QuizScreen = () => {
   const [selectedTestId, setSelectedTestId] = useState(null);
   const [selectedTestSlug, setSelectedTestSlug] = useState(null);
   const navigation = useNavigation();
+  const [isChecked, setIsChecked] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
+
 
   const sendEmail = async () => {
-    if (!email.includes('@g')) {
-      setError('Please enter a valid email address.');
-      return; 
+
+    if (!isChecked) {
+      setError("Lütfen Kişisel Verilerin Korunması Kanunu'nu onaylayın.");
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError('Lütfen geçerli bir mail adresi giriniz.');
+      return; // Exit the function early
     }
 
     setIsLoading(true);
@@ -59,7 +70,7 @@ const QuizScreen = () => {
             email: email,
             referer: 'mobileApp',
             form_page_url: 'mobileApp',
-            test_id: 29, 
+            test_id: 29,
           }),
         }
       );
@@ -84,6 +95,7 @@ const QuizScreen = () => {
       setIsLoading(false);
     }
   };
+
 
   const fetchTests = () => {
     fetch('https://npistanbul.com/api/tr/tests?token=1')
@@ -110,7 +122,7 @@ const QuizScreen = () => {
       .then(data => {
         setQuestions(data);
         setIsLoading(false);
-        setCurrentIndex(0); 
+        setCurrentIndex(0);
       })
       .catch(error => {
         console.error(`fetchQuestions Error for ${slug}:`, error);
@@ -189,7 +201,6 @@ const QuizScreen = () => {
     answers.forEach((answer, index) => {
       params.append(`test_data[${index}][id]`, answer.question_id);
       params.append(`test_data[${index}][answer]`, answer.answer_id);
-
     });
 
     try {
@@ -206,16 +217,26 @@ const QuizScreen = () => {
 
       if (data.status === 'true') {
         console.log('Test successfully submitted:', data.message);
+        return response; // Burada response nesnesini döndürüyoruz
       } else {
         throw new Error(data.message);
       }
     } catch (error) {
       console.error('Error submitting test:', error);
+      throw error; // Bu hatayı yukarıya taşıyoruz
     }
   };
 
   const handleCompleteTest = async () => {
-    setIsLoading(true); 
+    // Tüm sorulara cevap verilip verilmediğini kontrol ediyoruz.
+    const isAllQuestionsAnswered = testData.every(item => item.selectedAnswerId !== null);
+
+    if (!isAllQuestionsAnswered) {
+      Alert.alert('Hata', 'Lütfen tüm sorulara cevap verin.');
+      return;
+    }
+
+    setIsLoading(true);
 
     const formattedAnswers = testData.map(item => ({
       question_id: item.id,
@@ -223,25 +244,34 @@ const QuizScreen = () => {
     }));
 
     try {
-      await submitTest(code, formattedAnswers);
-      setIsLoading(false); 
+      const response = await submitTest(code, formattedAnswers);
+      setIsLoading(false);
 
-      Alert.alert(
-        'Test Tamamlandı',
-        'Sonuçlarınız Mailinize iletilecektir',
-        [
-          {
-            text: 'Tamam',
-            onPress: () => navigation.navigate('HomeScreen'),
-          },
-        ],
-        { cancelable: false },
-      );
+      if (response.status === 200) {
+        setModalContent({
+          title: "🎉 Test Tamamlandı",
+          message: "Sonuçlarınız Mailinize iletilecektir.",
+          success: true
+        });
+      } else {
+        setModalContent({
+          title: "❌ Hata",
+          message: "Test gönderilirken bir hata oluştu.",
+          success: false
+        });
+      }
+      setModalVisible(true);
     } catch (error) {
-      setIsLoading(false); 
-      console.error('An error occurred:', error);
+      setIsLoading(false);
+      setModalContent({
+        title: "❌ Hata",
+        message: `Test gönderilirken bir hata oluştu. Lütfen cevapları gözden geçirin.`,
+        success: false
+      });
+      setModalVisible(true);
     }
   };
+
 
   return (
 
@@ -266,7 +296,7 @@ const QuizScreen = () => {
                   textAlign: 'center',
                   fontWeight: 'bold',
                   fontSize: 25,
-                  color: 'pink',
+                  color: "rgba(64,183,176,1)",
                 }}>
                 Psikolojik Testler
               </Text>
@@ -306,7 +336,27 @@ const QuizScreen = () => {
               placeholder="E-Mail adresinizi giriniz..."
               style={styles.textInputStyle}
             />
-            <Button title="Testlere Göz At" onPress={sendEmail} />
+            <View>
+              <TouchableOpacity style={styles.customButton} onPress={sendEmail}>
+                <Text style={styles.buttonText}>Testlere Göz At</Text>
+              </TouchableOpacity>
+              {error && <Text style={{ color: 'red' }}>{error}</Text>}
+              <View style={styles.checkboxContainer}>
+                <TouchableOpacity
+                  style={[styles.checkbox, isChecked && styles.checked]}
+                  onPress={() => setIsChecked(!isChecked)}
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    Linking.openURL('https://npistanbul.com/kisisel-verilerin-islenmesi-hakkinda-bilgilendirme-formu');
+                  }}
+                >
+                  <Text style={styles.checkboxLabel}>
+                    Kişisel Verilerin Korunması Kanunu kapsamında Bilgilendirme ve Aydınlatma Metnini okudum, onayladım. (*)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             {error && <Text style={{ color: 'red' }}>Lütfen Doğru bir e-Mail adresi giriniz.</Text>}
           </>
         ) : (
@@ -344,7 +394,11 @@ const QuizScreen = () => {
                         alignItems: 'center',
                         padding: 15,
                       }}>
-                      <Text>{item.name}</Text>
+                      <Image
+                        source={require('../../../assets/ideas.png')} // İkonun yolunu buraya ekleyin
+                        style={{ width: 28, height: 28, marginRight: 10, resizeMode: "contain" }} // İkon boyutunu ve sağ kenar boşluğunu ayarlayabilirsiniz
+                      />
+                      <Text style={{ color: "black" }}>{item.name}</Text>
                     </View>
                   </TouchableOpacity>
                 )}
@@ -358,6 +412,7 @@ const QuizScreen = () => {
                   />
                 )}
               />
+
             ) : (
               <>
                 <View style={styles.questionContainer}>
@@ -395,28 +450,29 @@ const QuizScreen = () => {
                 <View style={styles.buttonContainer}>
                   <View style={styles.prevButtonContainer}>
                     {currentIndex > 0 && (
-                      <Button title="Önceki Soru" onPress={prevQuestion} />
+                      <TouchableOpacity style={styles.customButton} onPress={prevQuestion}>
+                        <Text style={styles.buttonText}>Önceki Soru</Text>
+                      </TouchableOpacity>
                     )}
                   </View>
                   <View style={styles.nextButtonContainer}>
                     {currentIndex < questions.length - 1 && (
-                      <Button title="Sonraki Soru" onPress={nextQuestion} />
+                      <TouchableOpacity style={styles.customButton} onPress={nextQuestion}>
+                        <Text style={styles.buttonText}>Sonraki Soru</Text>
+                      </TouchableOpacity>
                     )}
                   </View>
-                  {questions.length > 0 &&
-                    currentIndex === questions.length - 1 && (
-                      <View
-                        style={{
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <Button
-                          title="Test'i Bitir"
-                          onPress={handleCompleteTest}
-                        />
-                      </View>
-                    )}
+                  {questions.length > 0 && currentIndex === questions.length - 1 && (
+                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                      <TouchableOpacity style={styles.customButton} onPress={handleCompleteTest}>
+                        <Text style={styles.buttonText}>Test'i Bitir</Text>
+                      </TouchableOpacity>
+
+                    </View>
+                  )}
+
                 </View>
+
                 <Modal
                   transparent={true}
                   visible={isLoading}
@@ -428,10 +484,55 @@ const QuizScreen = () => {
                       backgroundColor: 'rgba(0, 0, 0, 0.5)',
                       alignItems: 'center',
                       justifyContent: 'center',
-                    }}>
+                    }}
+                  >
                     <ActivityIndicator size="large" color="#00ff00" />
                   </View>
                 </Modal>
+
+                <Modal
+                  transparent={true}
+                  visible={isModalVisible}
+                  onRequestClose={() => { }}
+                >
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <View
+                      style={{
+                        backgroundColor: 'white',
+                        padding: 20,
+                        borderRadius: 5,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Text style={{ fontSize: 50, marginBottom: 20 }}>{modalContent?.title}</Text>
+                      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>{modalContent?.message}</Text>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: modalContent?.success ? 'rgba(64,183,176,1)' : 'red',
+                          padding: 10,
+                          borderRadius: 5,
+                        }}
+                        onPress={() => {
+                          setModalVisible(false);
+                          if (modalContent?.success) {
+                            navigation.navigate('HomeScreen');
+                          }
+                        }}
+                      >
+                        <Text style={{ color: 'white' }}>Tamam</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
+
+
               </>
             )}
           </>
@@ -449,7 +550,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   centeredContainer: {
-    justifyContent: 'flex-start', 
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   logoContainer: {
@@ -490,14 +591,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
     padding: 15,
-    backgroundColor: "rgba(63, 129, 71, 0.3)",
+    backgroundColor: "#f0f0f0",
     borderRadius: 20,
     marginTop: 20,
   },
   selected: {
-    borderWidth: 2,
-    borderColor: "rgba(63, 249, 71, 0.6)",
-    backgroundColor: "rgba(64,183,176,0.2)",
+    borderWidth: 1,
+    borderColor: "black",
+    backgroundColor: "rgba(63, 249, 71, 0.5)",
   },
   scoreText: {
     fontSize: 18,
@@ -517,6 +618,16 @@ const styles = StyleSheet.create({
   nextButtonContainer: {
     flex: 1,
     alignItems: 'flex-end',
+  },
+  customButton: {
+    backgroundColor: "rgba(64,183,176,1)",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
   },
   fullScreenContainer: {
     backgroundColor: 'white',
@@ -558,6 +669,26 @@ const styles = StyleSheet.create({
     left: 0,
     top: 30,
     left: 20,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: 'grey',
+    borderRadius: 3,
+    marginRight: 10,
+  },
+  checked: {
+    backgroundColor: 'blue',
+  },
+  checkboxLabel: {
+    fontSize: 12,
+    color: "blue",
   },
 });
 
