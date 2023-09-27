@@ -198,7 +198,7 @@ const ContentScreen = ({route}) => {
               />
             </View>
           </View>
-          <View style={{flexDirection: 'row', flexWrap: 'wrap', margin: 20}}>
+          <View style={{flexDirection: 'row', flexWrap: 'wrap', margin: 20, justifyContent:"space-between"}}>
             {content?.contents?.map((item, index) => (
               <TouchableOpacity
                 key={item.id}
@@ -218,9 +218,10 @@ const ContentScreen = ({route}) => {
                       item.image || 'https://www.example.com/default-image.jpg',
                   }}
                   style={{
-                    width: '100%',
-                    height: settings.CARD_WIDTH * 0.4,
-                    borderRadius: 15,
+                    width: settings.CARD_WIDTH * 0.7,
+                    height: settings.CARD_WIDTH * 0.5,
+                    justifyContent: 'center',
+                    borderRadius: 20,
                   }}
                 />
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
@@ -302,8 +303,8 @@ const styles = StyleSheet.create({
   homeScreenCardContainer: {
     borderWidth: 0.5,
     borderColor: '#f0f0f0',
-    width: settings.CARD_WIDTH * 0.8,
-    height: settings.CARD_WIDTH * 0.7,
+    width: settings.CARD_WIDTH * 0.7,
+    height: settings.CARD_WIDTH * 0.9,
     backgroundColor: 'white',
     borderRadius: 20,
     marginTop: 20,

@@ -199,8 +199,7 @@ const YazarDetail = ({ route }) => {
                       'https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg',
                   }}
                   style={{
-                    width: '100%',
-                    width: settings.CARD_WIDTH * 0.9,
+                    width: settings.CARD_WIDTH * 0.8,
                     height: settings.CARD_WIDTH * 0.5,
                     justifyContent: 'center',
                     borderRadius: 20,
@@ -263,7 +262,7 @@ const styles = StyleSheet.create({
     color: 'black'
   },
   yazarImage: {
-    width: settings.CARD_WIDTH * 1.15,
+    width: settings.CARD_WIDTH * 1,
     height: settings.CARD_WIDTH * 0.8,
     borderRadius: 20,
   },
@@ -333,8 +332,8 @@ const styles = StyleSheet.create({
   homeScreenCardContainer: {
     borderWidth: 0.5,
     borderColor: '#f0f0f0',
-    width: settings.CARD_WIDTH * 0.9,
-    height: settings.CARD_WIDTH * 0.8,
+    width: settings.CARD_WIDTH * 0.8,
+    height: settings.CARD_WIDTH * 0.9,
     backgroundColor: 'white',
     borderRadius: 20,
     marginTop: 20,

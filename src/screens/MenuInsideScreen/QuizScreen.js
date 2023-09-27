@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
   Linking,
-  TextInput,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
@@ -12,14 +11,17 @@ import {
   ActivityIndicator,
   Image,
   Alert,
+  ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
-import { settings } from '../../utils/settings';
-import { ArrowLeftIcon as ArrowLeftIconOutline } from 'react-native-heroicons/outline';
+import {settings} from '../../utils/settings';
+import {ArrowLeftIcon as ArrowLeftIconOutline} from 'react-native-heroicons/outline';
 import {
   NavigationHelpersContext,
   useNavigation,
 } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
+import InputText from 'react-native-input-validator';
 
 const QuizScreen = () => {
   const [email, setEmail] = useState('');
@@ -42,18 +44,27 @@ const QuizScreen = () => {
   const navigation = useNavigation();
   const [isChecked, setIsChecked] = useState(false);
   const [modalContent, setModalContent] = useState(null);
+  const [warning, setWarning] = useState('');
+  const inputRef = useRef(null);
 
 
   const sendEmail = async () => {
-
-    if (!isChecked) {
-      setError("Lütfen Kişisel Verilerin Korunması Kanunu'nu onaylayın.");
+    if (!isChecked && !email.includes('@')) {
+      setError({email: true, checkbox: true});
       return;
     }
 
-    if (!email.includes('@')) {
-      setError('Lütfen geçerli bir mail adresi giriniz.');
-      return; // Exit the function early
+    if (!isChecked) {
+      setError({checkbox: true});
+      return;
+    }
+
+    if (inputRef.current && inputRef.current.isValidated()) {
+      // E-posta geçerliyse, burada e-posta gönderme kodunuzu yerleştirebilirsiniz.
+    } else {
+      // E-posta geçerli değilse bir hata mesajı göster
+      Alert.alert('Hata', 'Lütfen geçerli bir e-posta adresi giriniz.');
+      return;
     }
 
     setIsLoading(true);
@@ -72,7 +83,7 @@ const QuizScreen = () => {
             form_page_url: 'mobileApp',
             test_id: 29,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -86,6 +97,7 @@ const QuizScreen = () => {
       setTestId(data.testId || 'yourTestId');
 
       fetchTests();
+    
 
       setIsEmailSent(true);
     } catch (error) {
@@ -95,7 +107,6 @@ const QuizScreen = () => {
       setIsLoading(false);
     }
   };
-
 
   const fetchTests = () => {
     fetch('https://npistanbul.com/api/tr/tests?token=1')
@@ -173,18 +184,20 @@ const QuizScreen = () => {
 
     setAnswers(prevAnswers => ({
       ...prevAnswers,
-      [currentIndex]: { answer, points: newPoints },
+      [currentIndex]: {answer, points: newPoints},
     }));
   };
-
   const nextQuestion = () => {
-    setCurrentIndex(prevIndex => prevIndex + 1);
+    if (answers[currentIndex]) {
+      setCurrentIndex(prevIndex => prevIndex + 1);
+      setWarning(''); // Eğer cevap verilmişse, uyarıyı kaldır.
+    } else {
+      setWarning('Önce cevap vermelisiniz'); // Cevap verilmemişse, uyarıyı göster.
+    }
   };
-
   const prevQuestion = () => {
-    setCurrentIndex(prevIndex => prevIndex - 1);
+    setCurrentIndex(prevIndex => Math.max(prevIndex - 1, 0));
   };
-
   useEffect(() => {
     const currentAnswer = answers[currentIndex];
     const newLastPoints = currentAnswer ? parseInt(currentAnswer.points) : 0;
@@ -208,7 +221,7 @@ const QuizScreen = () => {
         'https://npistanbul.com/api/tr/test-create',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
           body: params.toString(),
         },
       );
@@ -229,7 +242,9 @@ const QuizScreen = () => {
 
   const handleCompleteTest = async () => {
     // Tüm sorulara cevap verilip verilmediğini kontrol ediyoruz.
-    const isAllQuestionsAnswered = testData.every(item => item.selectedAnswerId !== null);
+    const isAllQuestionsAnswered = testData.every(
+      item => item.selectedAnswerId !== null,
+    );
 
     if (!isAllQuestionsAnswered) {
       Alert.alert('Hata', 'Lütfen tüm sorulara cevap verin.');
@@ -249,297 +264,357 @@ const QuizScreen = () => {
 
       if (response.status === 200) {
         setModalContent({
-          title: "🎉 Test Tamamlandı",
-          message: "Sonuçlarınız Mailinize iletilecektir.",
-          success: true
+          title: '🎉 Test Tamamlandı',
+          message: 'Sonuçlarınız Mailinize iletilecektir.',
+          success: true,
         });
       } else {
         setModalContent({
-          title: "❌ Hata",
-          message: "Test gönderilirken bir hata oluştu.",
-          success: false
+          title: '❌ Hata',
+          message: 'Test gönderilirken bir hata oluştu.',
+          success: false,
         });
       }
       setModalVisible(true);
     } catch (error) {
       setIsLoading(false);
       setModalContent({
-        title: "❌ Hata",
+        title: '❌ Hata',
         message: `Test gönderilirken bir hata oluştu. Lütfen cevapları gözden geçirin.`,
-        success: false
+        success: false,
       });
       setModalVisible(true);
     }
   };
 
-
   return (
-
     <View style={styles.container}>
-      <SafeAreaView style={styles.centeredContainer}>
-        {!isEmailSent ? (
-          <>
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../../../assets/photo/logo.png')}
-                style={styles.logo}
-              />
-              <TouchableOpacity
-                style={styles.menuIcon}
-                onPress={() => navigation.goBack()}>
-                <ArrowLeftIconOutline name="arrowleft" size={32} color="black" />
-              </TouchableOpacity>
-            </View>
-            <View>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  fontSize: 25,
-                  color: "rgba(64,183,176,1)",
-                }}>
-                Psikolojik Testler
-              </Text>
-            </View>
-            <View>
-              <Text style={{ paddingTop: 10, margin: 22, lineHeight: 18 }}>
-                Depresyon; ciddi, psikolojik, fizyolojik sonuçlara yer açan
-                psikiyatrik bir hastalıktır. Depresyon belirtileri; iştahsızlık,
-                uyku bozulması, günlük aktiviteleri yapamaması, sürekli yorgun
-                ve halsiz hissetme sayılabilir. Depresyonun nedenleri arasında;
-                biyolojik, sosyolojik ve psikolojik durumlar sayılır.
-                Depresyonun farklı türleri vardır: Majör depresyon, Kronik
-                Depresyon, A-tipik Depresyon, Mevsimsel Depresyon’dur. Depresyon
-                tedavisinde; kişi, aile ve tedavi yöntemleri bütüncül olarak
-                önemlidir. Depresyon tedavisinde psikoterapi hizmeti, ilaç
-                tedavisi ve beyin uyarım teknikleri uygulanabilir. Depresyon
-                belirtileri konusunda merak ettikleriniz için Beck Depresyon
-                Testini öneririz. Beck ve arkadaşları (1961) tarafından
-                geliştirilmiş, kişinin depresyon yönünden riskini ve depresif
-                belirtilerin şiddetini değerlendiren 21 maddeden oluşan bir
-                özbildirim ölçeğidir. Test sonuçları tıbbi anlamda kesin bir
-                bilgi vermemektedir. Bu testler kendinizle ilgili
-                farkındalığınızı arttırmak içindir, tek başına tanı koydurmaz.
-                Test sonucunuzun bir uzman tarafından değerlendirilmeden, size
-                mail atılacağını önemle belirtmek isteriz. Sağlıklı günler
-                dileriz.
-
-              </Text>
-              <Text style={{ margin: 22, lineHeight: 18 }}>
-                Teste başlamadan önce, test sonuçlarınızın gönderileceği e-posta adresini giriniz.
-
-              </Text>
-            </View>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="E-Mail adresinizi giriniz..."
-              style={styles.textInputStyle}
-            />
-            <View>
-              <TouchableOpacity style={styles.customButton} onPress={sendEmail}>
-                <Text style={styles.buttonText}>Testlere Göz At</Text>
-              </TouchableOpacity>
-              {error && <Text style={{ color: 'red' }}>{error}</Text>}
-              <View style={styles.checkboxContainer}>
-                <TouchableOpacity
-                  style={[styles.checkbox, isChecked && styles.checked]}
-                  onPress={() => setIsChecked(!isChecked)}
+      {!isEmailSent ? (
+        <>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{flex: 1}}>
+            <ScrollView contentContainerStyle={styles.centeredContainer}>
+              <View style={styles.logoContainer}>
+                <Image
+                  source={require('../../../assets/photo/logo.png')}
+                  style={styles.logo}
                 />
                 <TouchableOpacity
-                  onPress={() => {
-                    Linking.openURL('https://npistanbul.com/kisisel-verilerin-islenmesi-hakkinda-bilgilendirme-formu');
-                  }}
-                >
-                  <Text style={styles.checkboxLabel}>
-                    Kişisel Verilerin Korunması Kanunu kapsamında Bilgilendirme ve Aydınlatma Metnini okudum, onayladım. (*)
-                  </Text>
+                  style={styles.menuIcon}
+                  onPress={() => navigation.goBack()}>
+                  <ArrowLeftIconOutline
+                    name="arrowleft"
+                    size={32}
+                    color="black"
+                  />
                 </TouchableOpacity>
               </View>
-            </View>
-            {error && <Text style={{ color: 'red' }}>Lütfen Doğru bir e-Mail adresi giriniz.</Text>}
-          </>
-        ) : (
-          <>
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../../../assets/photo/logo.png')}
-                style={styles.logo}
+              <View>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    fontSize: 25,
+                    color: 'rgba(64,183,176,1)',
+                  }}>
+                  Psikolojik Testler
+                </Text>
+              </View>
+              <View>
+                <Text style={{paddingTop: 10, margin: 22, lineHeight: 22}}>
+                  Depresyon; ciddi, psikolojik, fizyolojik sonuçlara yer açan
+                  psikiyatrik bir hastalıktır. Depresyon belirtileri;
+                  iştahsızlık, uyku bozulması, günlük aktiviteleri yapamaması,
+                  sürekli yorgun ve halsiz hissetme sayılabilir. Depresyonun
+                  nedenleri arasında; biyolojik, sosyolojik ve psikolojik
+                  durumlar sayılır. Depresyonun farklı türleri vardır: Majör
+                  depresyon, Kronik Depresyon, A-tipik Depresyon, Mevsimsel
+                  Depresyon’dur. Depresyon tedavisinde; kişi, aile ve tedavi
+                  yöntemleri bütüncül olarak önemlidir. Depresyon tedavisinde
+                  psikoterapi hizmeti, ilaç tedavisi ve beyin uyarım teknikleri
+                  uygulanabilir. Depresyon belirtileri konusunda merak
+                  ettikleriniz için Beck Depresyon Testini öneririz. Beck ve
+                  arkadaşları (1961) tarafından geliştirilmiş, kişinin depresyon
+                  yönünden riskini ve depresif belirtilerin şiddetini
+                  değerlendiren 21 maddeden oluşan bir özbildirim ölçeğidir.
+                  Test sonuçları tıbbi anlamda kesin bir bilgi vermemektedir. Bu
+                  testler kendinizle ilgili farkındalığınızı arttırmak içindir,
+                  tek başına tanı koydurmaz. Test sonucunuzun bir uzman
+                  tarafından değerlendirilmeden, size mail atılacağını önemle
+                  belirtmek isteriz. Sağlıklı günler dileriz.
+                </Text>
+                <Text style={{margin: 22, lineHeight: 18}}>
+                  Teste başlamadan önce, test sonuçlarınızın gönderileceği
+                  e-posta adresini giriniz.
+                </Text>
+              </View>
+              <InputText
+                onRef={r => {
+                  inputRef.current = r;
+                }}
+                type="email"
+                value={email}
+                style={styles.textInputStyle}
+                onChangeText={text => {
+                  setEmail(text);
+                }}
+                placeholder="E-Mail adresinizi giriniz..."
               />
-              <TouchableOpacity
-                style={styles.menuIcon}
-                onPress={() => navigation.goBack()}>
-              </TouchableOpacity>
-            </View>
-            {isLoading ? (
-              <LottieView
-                autoPlay
-                style={styles.fullScreenAnimation}
-                source={require('../../../assets/photo/loading.json')}
-              />
-            ) : questions.length === 0 ? (
-              <FlatList
-                data={tests}
-                keyExtractor={item => item.id.toString()}
-                renderItem={({ item }) => (
+              <View>
+                <TouchableOpacity
+                  style={styles.customButton}
+                  onPress={sendEmail}>
+                  <Text style={styles.buttonText}>Testlere Göz At</Text>
+                </TouchableOpacity>
+                {error === 'email' && (
+                  <Text
+                    style={{color: 'red', textAlign: 'center', marginTop: 10}}>
+                    Lütfen geçerli bir mail adresi giriniz.
+                  </Text>
+                )}
+                <View style={styles.checkboxContainer}>
+                  <TouchableOpacity
+                    style={[styles.checkbox, isChecked && styles.checked]}
+                    onPress={() => setIsChecked(!isChecked)}>
+                    {isChecked && (
+                      <Image
+                        source={require('../../../assets/check_icon.png')}
+                        style={styles.checkIcon}
+                      />
+                    )}
+                  </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
-                      setSelectedTestId(item.id);
-                      setSelectedTestSlug(item.slug);
-                      fetchQuestions(item.slug);
+                      // Link açma kodu
                     }}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        padding: 15,
-                      }}>
-                      <Image
-                        source={require('../../../assets/ideas.png')} // İkonun yolunu buraya ekleyin
-                        style={{ width: 28, height: 28, marginRight: 10, resizeMode: "contain" }} // İkon boyutunu ve sağ kenar boşluğunu ayarlayabilirsiniz
-                      />
-                      <Text style={{ color: "black" }}>{item.name}</Text>
-                    </View>
+                    <Text style={styles.checkboxLabel}>
+                      Kişisel Verilerin Korunması Kanunu kapsamında
+                      Bilgilendirme ve Aydınlatma Metnini okudum, onayladım. (*)
+                    </Text>
                   </TouchableOpacity>
+                </View>
+                {error === 'checkbox' && (
+                  <Text style={{color: 'red', marginTop: 20}}>
+                    Lütfen Kişisel Verilerin Korunması Kanunu'nu onaylayın.
+                  </Text>
                 )}
-                ItemSeparatorComponent={() => (
+              </View>
+              {error?.email && (
+                <Text
+                  style={{color: 'red', textAlign: 'center', marginTop: 10}}>
+                  Lütfen geçerli bir mail adresi giriniz.
+                </Text>
+              )}
+              {error?.checkbox && (
+                <Text style={{color: 'red', marginTop: 20}}>
+                  Lütfen Kişisel Verilerin Korunması Kanunu'nu onaylayın.
+                </Text>
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </>
+      ) : (
+        <>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../../../assets/photo/logo.png')}
+              style={styles.logo}
+            />
+            <TouchableOpacity
+              style={styles.menuIcon}
+              onPress={() => navigation.goBack()}></TouchableOpacity>
+          </View>
+          {isLoading ? (
+            <LottieView
+              autoPlay
+              style={styles.fullScreenAnimation}
+              source={require('../../../assets/photo/loading.json')}
+            />
+          ) : questions.length === 0 ? (
+            <FlatList
+              data={tests}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedTestId(item.id);
+                    setSelectedTestSlug(item.slug);
+                    fetchQuestions(item.slug);
+                  }}>
                   <View
                     style={{
-                      height: 1,
-                      width: '100%',
-                      backgroundColor: '#C8C8C8',
-                    }}
-                  />
-                )}
-              />
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      padding: 15,
+                    }}>
+                    <Image
+                      source={require('../../../assets/ideas.png')} //
+                      style={{
+                        width: 28,
+                        height: 28,
+                        marginRight: 10,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                    <Text style={{color: 'black'}}>{item.name}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => (
+                <View
+                  style={{
+                    height: 1,
+                    width: '100%',
+                    backgroundColor: '#C8C8C8',
+                  }}
+                />
+              )}
+            />
+          ) : (
+            <>
+              <View style={styles.questionContainer}>
+                <Text style={styles.questionText}>
+                  {`${currentIndex + 1}.${questions[currentIndex].title}`}
+                </Text>
+                {questions[currentIndex].secenekler.map(option => (
+                  <TouchableOpacity
+                    key={option.id}
+                    style={[
+                      styles.option,
+                      selectedAnswer === option.title ? styles.selected : null,
+                    ]}
+                    onPress={() =>
+                      selectAnswer(
+                        option.id,
+                        option.title,
+                        option.puan,
+                        questions[currentIndex].id,
+                      )
+                    }>
+                    <View style={styles.dotContainer}>
+                      {selectedAnswer === option.title ? (
+                        <View style={styles.filledDot} />
+                      ) : (
+                        <View style={styles.emptyDot} />
+                      )}
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        color: 'black',
+                        textAlign: 'center',
+                      }}>
+                      {option.title}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {warning !== '' && <Text style={{color: 'red'}}>{warning}</Text>}
 
-            ) : (
-              <>
-                <View style={styles.questionContainer}>
-                  <Text style={styles.questionText}>
-                    {`${currentIndex + 1}.${questions[currentIndex].title}`}
-                  </Text>
-                  {questions[currentIndex].secenekler.map(option => (
+              <View style={styles.buttonContainer}>
+                <View style={styles.prevButtonContainer}>
+                  {currentIndex > 0 && (
                     <TouchableOpacity
-                      key={option.id}
-                      style={[
-                        styles.option,
-                        selectedAnswer === option.title
-                          ? styles.selected
-                          : null,
-                      ]}
-                      onPress={() =>
-                        selectAnswer(
-                          option.id,
-                          option.title,
-                          option.puan,
-                          questions[currentIndex].id,
-                        )
-                      }>
-                      <View style={styles.dotContainer}>
-                        {selectedAnswer === option.title ? (
-                          <View style={styles.filledDot} />
-                        ) : (
-                          <View style={styles.emptyDot} />
-                        )}
-                      </View>
-                      <Text style={{ fontSize: 20, color: "black", textAlign: "center", }}>{option.title}</Text>
+                      style={styles.customButton}
+                      onPress={prevQuestion}>
+                      <Text style={styles.buttonText}>Önceki Soru</Text>
                     </TouchableOpacity>
-                  ))}
+                  )}
                 </View>
-                <View style={styles.buttonContainer}>
-                  <View style={styles.prevButtonContainer}>
-                    {currentIndex > 0 && (
-                      <TouchableOpacity style={styles.customButton} onPress={prevQuestion}>
-                        <Text style={styles.buttonText}>Önceki Soru</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  <View style={styles.nextButtonContainer}>
-                    {currentIndex < questions.length - 1 && (
-                      <TouchableOpacity style={styles.customButton} onPress={nextQuestion}>
-                        <Text style={styles.buttonText}>Sonraki Soru</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  {questions.length > 0 && currentIndex === questions.length - 1 && (
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                      <TouchableOpacity style={styles.customButton} onPress={handleCompleteTest}>
+                <View style={styles.nextButtonContainer}>
+                  {currentIndex < questions.length - 1 && (
+                    <TouchableOpacity
+                      style={styles.customButton}
+                      onPress={nextQuestion}>
+                      <Text style={styles.buttonText}>Sonraki Soru</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                {questions.length > 0 &&
+                  currentIndex === questions.length - 1 && (
+                    <View
+                      style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <TouchableOpacity
+                        style={styles.customButton}
+                        onPress={handleCompleteTest}>
                         <Text style={styles.buttonText}>Test'i Bitir</Text>
                       </TouchableOpacity>
-
                     </View>
                   )}
+              </View>
 
+              <Modal
+                transparent={true}
+                visible={isLoading}
+                onRequestClose={() => {}}>
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <ActivityIndicator size="large" color="#00ff00" />
                 </View>
+              </Modal>
 
-                <Modal
-                  transparent={true}
-                  visible={isLoading}
-                  onRequestClose={() => { }}
-                >
+              <Modal
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={() => {}}>
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
                   <View
                     style={{
-                      flex: 1,
-                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      backgroundColor: 'white',
+                      padding: 20,
+                      borderRadius: 5,
                       alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <ActivityIndicator size="large" color="#00ff00" />
-                  </View>
-                </Modal>
-
-                <Modal
-                  transparent={true}
-                  visible={isModalVisible}
-                  onRequestClose={() => { }}
-                >
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <View
+                    }}>
+                    <Text style={{fontSize: 50, marginBottom: 20}}>
+                      {modalContent?.title}
+                    </Text>
+                    <Text
                       style={{
-                        backgroundColor: 'white',
-                        padding: 20,
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        marginBottom: 20,
+                      }}>
+                      {modalContent?.message}
+                    </Text>
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: modalContent?.success
+                          ? 'rgba(64,183,176,1)'
+                          : 'red',
+                        padding: 10,
                         borderRadius: 5,
-                        alignItems: 'center',
                       }}
-                    >
-                      <Text style={{ fontSize: 50, marginBottom: 20 }}>{modalContent?.title}</Text>
-                      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>{modalContent?.message}</Text>
-                      <TouchableOpacity
-                        style={{
-                          backgroundColor: modalContent?.success ? 'rgba(64,183,176,1)' : 'red',
-                          padding: 10,
-                          borderRadius: 5,
-                        }}
-                        onPress={() => {
-                          setModalVisible(false);
-                          if (modalContent?.success) {
-                            navigation.navigate('HomeScreen');
-                          }
-                        }}
-                      >
-                        <Text style={{ color: 'white' }}>Tamam</Text>
-                      </TouchableOpacity>
-                    </View>
+                      onPress={() => {
+                        setModalVisible(false);
+                        if (modalContent?.success) {
+                          navigation.navigate('HomeScreen');
+                        }
+                      }}>
+                      <Text style={{color: 'white'}}>Tamam</Text>
+                    </TouchableOpacity>
                   </View>
-                </Modal>
-
-
-              </>
-            )}
-          </>
-        )}
-      </SafeAreaView>
+                </View>
+              </Modal>
+            </>
+          )}
+        </>
+      )}
     </View>
-
   );
 };
 
@@ -547,11 +622,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    marginBottom: 10,
   },
   centeredContainer: {
-    justifyContent: 'flex-start',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 50,
   },
   logoContainer: {
     width: '100%',
@@ -559,6 +634,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignContent: 'center',
     justifyContent: 'center',
+    paddingTop: 50,
   },
   textInputStyle: {
     marginBottom: 15,
@@ -584,21 +660,21 @@ const styles = StyleSheet.create({
   },
   option: {
     borderWidth: 1,
-    borderColor: "rgba(63, 100, 71, 0.8)",
+    borderColor: 'rgba(63, 100, 71, 0.8)',
     width: settings.CARD_WIDTH * 1.7,
     height: settings.CARD_WIDTH * 0.3,
     flexDirection: 'row',
     alignItems: 'center',
     margin: 10,
     padding: 15,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#f0f0f0',
     borderRadius: 20,
     marginTop: 20,
   },
   selected: {
     borderWidth: 1,
-    borderColor: "black",
-    backgroundColor: "rgba(63, 249, 71, 0.5)",
+    borderColor: 'black',
+    backgroundColor: 'rgba(63, 249, 71, 0.5)',
   },
   scoreText: {
     fontSize: 18,
@@ -620,10 +696,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   customButton: {
-    backgroundColor: "rgba(64,183,176,1)",
+    backgroundColor: 'rgba(64,183,176,1)',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
+    alignSelf: 'center',
   },
   buttonText: {
     color: 'white',
@@ -636,8 +713,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fullScreenAnimation: {
-    width: settings.CARD_WIDTH,
-    height: settings.CARD_WIDTH,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 10,
   },
   dotContainer: {
     marginRight: 10,
@@ -648,14 +732,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: 'black',
-
   },
   filledDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     backgroundColor: 'black',
-
   },
   logo: {
     resizeMode: 'contain',
@@ -666,8 +748,7 @@ const styles = StyleSheet.create({
   },
   menuIcon: {
     position: 'absolute',
-    left: 0,
-    top: 30,
+    top: 80,
     left: 20,
   },
   checkboxContainer: {
@@ -682,13 +763,16 @@ const styles = StyleSheet.create({
     borderColor: 'grey',
     borderRadius: 3,
     marginRight: 10,
+    marginLeft: 300,
   },
-  checked: {
-    backgroundColor: 'blue',
+  checkIcon: {
+    width: 18, // İkonun genişliği
+    height: 20, // İkonun yüksekliği
   },
   checkboxLabel: {
     fontSize: 12,
-    color: "blue",
+    color: 'blue',
+    width: '50%',
   },
 });
 
