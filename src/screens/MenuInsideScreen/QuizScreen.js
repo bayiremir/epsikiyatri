@@ -47,24 +47,26 @@ const QuizScreen = () => {
   const [warning, setWarning] = useState('');
   const inputRef = useRef(null);
 
-
   const sendEmail = async () => {
-    if (!isChecked && !email.includes('@')) {
-      setError({email: true, checkbox: true});
-      return;
+    let errorObj = {};
+
+    if (!email || !email.includes('@')) {
+      errorObj.email = true;
     }
 
     if (!isChecked) {
-      setError({checkbox: true});
+      errorObj.checkbox = true;
+    }
+
+    if (Object.keys(errorObj).length > 0) {
+      setError(errorObj);
       return;
     }
 
     if (inputRef.current && inputRef.current.isValidated()) {
-      // E-posta geçerliyse, burada e-posta gönderme kodunuzu yerleştirebilirsiniz.
+      // Your email sending logic here
     } else {
-      // E-posta geçerli değilse bir hata mesajı göster
       Alert.alert('Hata', 'Lütfen geçerli bir e-posta adresi giriniz.');
-      return;
     }
 
     setIsLoading(true);
@@ -97,7 +99,6 @@ const QuizScreen = () => {
       setTestId(data.testId || 'yourTestId');
 
       fetchTests();
-    
 
       setIsEmailSent(true);
     } catch (error) {

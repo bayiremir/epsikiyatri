@@ -30,6 +30,7 @@ import {
   Bars3Icon as Bars3IconOutline,
   Squares2X2Icon as Squares2X2IconOutline,
 } from 'react-native-heroicons/outline';
+import NetInfo from '@react-native-community/netinfo';
 
 const HomeScreen = ({navigation}) => {
   const menuData = [
@@ -207,10 +208,35 @@ const HomeScreen = ({navigation}) => {
     }
   }, [isFocused]);
 
+  const [isConnected, setIsConnected] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      console.log('Connection type', state.type);
+      console.log('Is connected?', state.isConnected);
+      setIsConnected(state.isConnected);
+
+      if (!state.isConnected) {
+        setModalVisible(true);
+      } else {
+        // Reload your content here if reconnected
+        setModalVisible(false);
+      }
+    });
+
+    return () => {
+      // Unsubscribe
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <View style={{flex: 1, backgroundColor: '#f3f3f3'}}>
+      
       <RandevuAl />
       <GoUp scrollViewRef={scrollViewRef} />
+      
       <ScrollView
         style={{marginBottom: 50, flex: 1}}
         ref={scrollViewRef}
@@ -233,6 +259,7 @@ const HomeScreen = ({navigation}) => {
           />
         </View>
         <View>
+        
           <FlatList
             data={sliders}
             ref={flatListRef}
@@ -273,6 +300,23 @@ const HomeScreen = ({navigation}) => {
             ))}
           </ScrollView>
         </View>
+        <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalViews}>
+            <Text style={styles.modalText}>İnternet bağlantınızı kontrol edin</Text>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.textStyle}>Tamam</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
         <Modal
           animationType="fade"
           transparent={true}
@@ -332,6 +376,7 @@ const HomeScreen = ({navigation}) => {
             </View>
           </View>
         </Modal>
+        
         <AdultPsychiatry />
         <LastNewScreen />
       </ScrollView>
@@ -476,5 +521,38 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Arka planı karart
+  },
+  modalViews: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 35,
+    alignItems: 'center',
+  },
+  button: {
+    borderRadius: 10,
+    marginTop: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 20,
+    fontWeight:"600",
+    marginBottom: 5,
+    textAlign: 'center',
   },
 });
