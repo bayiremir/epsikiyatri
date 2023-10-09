@@ -4,9 +4,9 @@ import {Platform} from 'react-native';
 import {settings} from '../../utils/settings';
 import {PaperAirplaneIcon as PaperAirplaneIcon} from 'react-native-heroicons/outline';
 
-const RandevuAl = () => {
+const SharedNews = () => {
   const bottomValue = Platform.select({
-    ios: settings.CARD_WIDTH / 2.5,
+    ios: settings.CARD_WIDTH / 2.6,
     android: settings.CARD_WIDTH / 3, 
   });
 
@@ -47,5 +47,5 @@ const RandevuAl = () => {
     </View>
   );
 };
+export default SharedNews;
 
-export default RandevuAl;

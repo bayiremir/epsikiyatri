@@ -233,10 +233,9 @@ const HomeScreen = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: '#f3f3f3'}}>
-      
       <RandevuAl />
       <GoUp scrollViewRef={scrollViewRef} />
-      
+
       <ScrollView
         style={{marginBottom: 50, flex: 1}}
         ref={scrollViewRef}
@@ -259,7 +258,6 @@ const HomeScreen = ({navigation}) => {
           />
         </View>
         <View>
-        
           <FlatList
             data={sliders}
             ref={flatListRef}
@@ -300,23 +298,20 @@ const HomeScreen = ({navigation}) => {
             ))}
           </ScrollView>
         </View>
-        <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalViews}>
-            <Text style={styles.modalText}>İnternet bağlantınızı kontrol edin</Text>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.textStyle}>Tamam</Text>
-            </TouchableOpacity>
+        <Modal animationType="fade" transparent={true} visible={modalVisible}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalViews}>
+              <Text style={styles.modalText}>
+                İnternet bağlantınızı kontrol edin
+              </Text>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.textStyle}>Tamam</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
         <Modal
           animationType="fade"
           transparent={true}
@@ -376,7 +371,7 @@ const HomeScreen = ({navigation}) => {
             </View>
           </View>
         </Modal>
-        
+
         <AdultPsychiatry />
         <LastNewScreen />
       </ScrollView>
@@ -551,7 +546,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 20,
-    fontWeight:"600",
+    fontWeight: '600',
     marginBottom: 5,
     textAlign: 'center',
   },

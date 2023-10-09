@@ -122,12 +122,6 @@ const QuizScreen = () => {
       });
   };
 
-  useEffect(() => {
-    if (isEmailSent) {
-      fetchTests();
-    }
-  }, [isEmailSent]);
-
   const fetchQuestions = slug => {
     fetch(`https://npistanbul.com/api/tr/test_data/${slug}`)
       .then(res => res.json())
@@ -188,6 +182,7 @@ const QuizScreen = () => {
       [currentIndex]: {answer, points: newPoints},
     }));
   };
+
   const nextQuestion = () => {
     if (answers[currentIndex]) {
       setCurrentIndex(prevIndex => prevIndex + 1);

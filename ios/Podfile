@@ -9,6 +9,7 @@ require Pod::Executable.execute_command('node', ['-p',
   prepare_react_native_project!
 
 $RNFirebaseAsStaticFramework = true
+$RNFirebaseAnalyticsWithoutAdIdSupport = true
 use_frameworks! :linkage => :static
 
 flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
@@ -17,10 +18,13 @@ if flipper_config == FlipperConfiguration.enabled
 end
 
 target 'epsikiyatri' do
+  pod 'RNFBAnalytics', path: '../node_modules/@react-native-firebase/analytics'
+
   config = use_native_modules!
 
   # Flags change depending on the env values.
   flags = get_default_flags()
+
 
   use_react_native!(
     :path => config[:reactNativePath],

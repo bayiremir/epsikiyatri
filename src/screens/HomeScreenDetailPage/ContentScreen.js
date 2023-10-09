@@ -8,6 +8,8 @@ import {
   useWindowDimensions,
   StyleSheet,
   Dimensions,
+  Linking,
+  Share,
 } from 'react-native';
 import axios from 'axios';
 import RenderHtml from 'react-native-render-html';
@@ -17,6 +19,11 @@ import {settings} from '../../utils/settings';
 import GoUp from '../../components/GoUp/GoUp';
 import LottieView from 'lottie-react-native';
 import {ArrowLeftIcon as ArrowLeftIconOutline} from 'react-native-heroicons/outline';
+import {ArrowUpOnSquareIcon as ArrowUpOnSquareIconOutline} from 'react-native-heroicons/outline';
+import analytics from '@react-native-firebase/analytics';
+import firebase from "@react-native-firebase/app"
+
+import SharedNews from '../../components/SharedNews/SharedNews';
 
 const ContentScreen = ({route}) => {
   const navigation = useNavigation();
@@ -35,6 +42,20 @@ const ContentScreen = ({route}) => {
 
     return updatedHtml;
   };
+
+  const logHaberOkumaEvent = async (haberId, haberTitle) => {
+    console.log(haberTitle)
+    await analytics().logEvent('haber_okuma', {
+      id: haberTitle,
+      title: haberTitle,
+    });
+  };
+
+  useEffect(() => {
+    if (content) {
+      logHaberOkumaEvent(content.id, content.title);
+    }
+  }, [content]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -198,7 +219,12 @@ const ContentScreen = ({route}) => {
               />
             </View>
           </View>
-          <View style={{flexDirection: 'row', flexWrap: 'wrap', margin: 20, justifyContent:"space-between"}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+            }}>
             {content?.contents?.map((item, index) => (
               <TouchableOpacity
                 key={item.id}
@@ -238,6 +264,24 @@ const ContentScreen = ({route}) => {
               </TouchableOpacity>
             ))}
           </View>
+          <TouchableOpacity
+            style={styles.shareButton}
+            onPress={() => {
+              const shareOptions = {
+                message: `Göz atın: https://e-psikiyatri.com/${slug}`,
+                url: `https://e-psikiyatri.com/${slug}`,
+              };
+              Share.share(shareOptions);
+            }}>
+            <Text style={styles.shareButtonText}>İçeriği paylaş</Text>
+
+            <ArrowUpOnSquareIconOutline
+              width={25}
+              height={30}
+              color="white"
+              alignSelf="center"
+            />
+          </TouchableOpacity>
         </ScrollView>
       ) : (
         <View style={styles.fullScreenContainer}>
@@ -331,5 +375,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 4,
     elevation: 4, // Only for Android
+  },
+  shareButton: {
+    width: settings.CARD_WIDTH,
+    height: 50,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    backgroundColor: 'rgba(64,183,176,1)',
+    alignItems: 'center',
+    borderRadius: 15,
+    marginBottom: 30,
+    flexDirection: 'row',
+  },
+  shareButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
