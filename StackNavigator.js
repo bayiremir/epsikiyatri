@@ -33,6 +33,7 @@ import {
 } from 'react-native-heroicons/solid';
 import NotificationScreen from './src/screens/DetailsScreen/NotificationScreen';
 import CategoryCloud from './src/screens/MenuInsideScreen/CategoryCloud';
+import NotificationSettings from './src/screens/MenuInsideScreen/NotificationSettings';
 
 function BottomTabs() {
   const Tab = createBottomTabNavigator();
@@ -245,6 +246,11 @@ function Navigation() {
         <Stack.Screen
           name="CategoryCloud"
           component={CategoryCloud}
+          options={{headerShown: false}}
+        />
+         <Stack.Screen
+          name="NotificationSettings"
+          component={NotificationSettings}
           options={{headerShown: false}}
         />
       </Stack.Navigator>
