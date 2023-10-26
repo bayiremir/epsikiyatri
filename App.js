@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {Animated, Image, View, StyleSheet, Platform, Alert} from 'react-native';
-import {Provider} from 'react-redux';
+import React, { useEffect, useState , useRef} from 'react';
+import { Animated, Easing, Image, View, StyleSheet, Alert } from 'react-native';
+import { Provider } from 'react-redux';
 import Navigation from './StackNavigator';
-import {store} from './src/redux/store';
-import {settings} from './src/utils/settings';
-import {GetFCMTokenAndStore} from './src/utils/pushnotification';
+import { store } from './src/redux/store';
+import { settings } from './src/utils/settings';
 import messaging from '@react-native-firebase/messaging';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
+import * as Animatable from 'react-native-animatable';
 
 // Firebase yapılandırması.
 const yourFirebaseConfig = {
@@ -25,13 +25,20 @@ if (!firebase.apps.length) {
   firebase.initializeApp(yourFirebaseConfig);
 }
 
-messaging().setBackgroundMessageHandler(async remoteMessage => {
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log('Message handled in the background!', remoteMessage);
 });
 
 export default function App() {
-  const [animation] = useState(new Animated.Value(0.3));
+  const [animation] = useState(new Animated.Value(0));
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const circleAnim = useRef(new Animated.Value(0)).current;
   const [appIsReady, setAppIsReady] = useState(false);
+
+  const circlePosition = circleAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   async function requestNotificationPermissionAndStoreToken() {
     const authStatus = await messaging().requestPermission();
@@ -68,6 +75,8 @@ export default function App() {
 
   async function saveTokenToFirestore(token) {
     try {
+      // Token'i belirlediğiniz bir Firestore koleksiyonuna kaydedebilirsiniz.
+      // Örnek olarak "user_tokens" koleksiyonunu kullandım. İhtiyacınıza göre değiştirebilirsiniz.
       await firestore().collection('user_tokens').add({
         token: token,
         createdAt: firestore.Timestamp.now(),
@@ -82,6 +91,7 @@ export default function App() {
     Animated.timing(animation, {
       toValue: 1,
       duration: 1000,
+      easing: Easing.linear,
       useNativeDriver: true,
     }).start(() => {
       setTimeout(() => {
@@ -93,7 +103,7 @@ export default function App() {
     requestNotificationPermissionAndStoreToken();
 
     // Foreground Handling
-    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
+    const unsubscribeOnMessage = messaging().onMessage(async (remoteMessage) => {
       console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
       Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
     });
@@ -103,18 +113,59 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(circleAnim, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
+
   if (!appIsReady) {
     return (
       <View style={styles.container}>
-        <Animated.Image
+        <Animatable.View
+          animation="zoomIn"
+          iterationCount={1}
           style={{
-            height: settings.CARD_WIDTH,
-            width: settings.CARD_WIDTH * 2,
-            resizeMode: 'contain',
-            transform: [{scale: animation}],
+            alignItems: 'center',
           }}
-          source={require('./assets/logo.png')}
-        />
+        >
+          <Image
+            style={{
+              height: settings.CARD_WIDTH,
+              width: settings.CARD_WIDTH * 2,
+              resizeMode: 'contain',
+            }}
+            source={require('./assets/100yil.png')}
+          />
+          <Animated.View
+            style={{
+              position: 'absolute',
+              top: settings.CARD_WIDTH / 2,
+              left: settings.CARD_WIDTH,
+              transform: [
+                { translateX: -10 },
+                { translateY: -10 },
+                { rotate: circlePosition },
+                { translateY: 120 },
+                { translateX: 10 },
+                { translateY: 10 }
+              ],
+              width: 20,
+              height: 20,
+              borderRadius: 10,
+              backgroundColor: 'red',
+            }}
+          />
+        </Animatable.View>
       </View>
     );
   }

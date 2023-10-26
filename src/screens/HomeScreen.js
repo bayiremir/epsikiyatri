@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   FlatList,
@@ -12,15 +12,14 @@ import {
   ScrollView,
   PanResponder,
   TouchableOpacity,
-  StatusBar,
 } from 'react-native';
-import {Divider} from 'react-native-paper';
-import {settings} from '../utils/settings';
-import {colors} from '../utils/colors';
+import { Divider } from 'react-native-paper';
+import { settings } from '../utils/settings';
+import { colors } from '../utils/colors';
 import dateformat from 'dateformat';
-import {useNavigation, useIsFocused} from '@react-navigation/native';
-import {Linking} from 'react-native';
-import {useGetContentQuery} from '../redux/slices/HomeScreenSlices';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { Linking } from 'react-native';
+import { useGetContentQuery } from '../redux/slices/HomeScreenSlices';
 import AdultPsychiatry from './HomeScreenDetailPage/AdultPsychiatry';
 import LastNewScreen from './HomeScreenDetailPage/LastNewsScreen';
 import RandevuAl from '../components/RandevuAl/RandevuAl';
@@ -31,8 +30,74 @@ import {
   Squares2X2Icon as Squares2X2IconOutline,
 } from 'react-native-heroicons/outline';
 import NetInfo from '@react-native-community/netinfo';
+import { changeIcon, resetIcon } from 'react-native-change-icon';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = ({ navigation }) => {
+  const [currentIcon, setCurrentIcon] = useState(null);
+
+  const currentDate = new Date();
+
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentDay = currentDate.getDate();
+
+  useEffect(() => {
+    const loadIconData = async () => {
+      try {
+        const didChangeLogo = await AsyncStorage.getItem('user.didChangeLogo');
+        const storedDate = await AsyncStorage.getItem('iconChangedDate');
+
+        if (didChangeLogo === 'true' && storedDate) {
+          const date = new Date(storedDate);
+          const difference = Math.abs(currentDate - date);
+          const differenceInDays = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+          if (differenceInDays >= 30 && currentIcon === 'Ekim') {
+            await resetIcon();
+            setCurrentIcon(null);
+            await AsyncStorage.removeItem('iconChangedDate');
+            await AsyncStorage.setItem('user.didChangeLogo', 'false');
+          } else {
+            setCurrentIcon('Ekim');
+          }
+        }
+      } catch (error) {
+        console.warn('Error loading icon data:', error);
+      }
+    };
+
+    loadIconData();
+  }, []);
+
+  useEffect(() => {
+    const changeAppIcon = async () => {
+      if (currentMonth === 10 && currentDay === 26 && currentIcon !== 'Ekim') {
+        try {
+          await changeIcon('Ekim');
+          setCurrentIcon('Ekim');
+          await AsyncStorage.setItem('iconChangedDate', currentDate.toString());
+          await AsyncStorage.setItem('user.didChangeLogo', 'true');
+        } catch (error) {
+          if (error.message === 'IOS:ICON_ALREADY_USED') {
+            console.warn("Icon is already in use.");
+          } else {
+            console.warn("Error changing icon:", error);
+          }
+        }
+      } else if (currentIcon === 'Ekim' && (currentDay !== 26 || currentMonth !== 10)) {
+        try {
+          await resetIcon();
+          setCurrentIcon(null);
+          await AsyncStorage.setItem('user.didChangeLogo', 'false');
+        } catch (error) {
+          console.warn("Error resetting icon:", error);
+        }
+      }
+    };
+
+    changeAppIcon();
+  }, [currentDay, currentMonth, currentIcon]);
+
   const menuData = [
     {
       text: 'Tıbbi Birimler',
@@ -80,11 +145,6 @@ const HomeScreen = ({navigation}) => {
       icon: require('../../assets/photo/icons/cloud.png'),
       screen: 'CategoryCloud',
     },
-    {
-      text: 'Bildirim Ayarları',
-      icon: require('../../assets/photo/icons/alarm.png'),
-      screen: 'NotificationSettings',
-    },
   ];
 
   const [activeSlide, setActiveSlide] = useState(0);
@@ -107,10 +167,10 @@ const HomeScreen = ({navigation}) => {
     itemVisiblePercentThreshold: 50,
   });
 
-  const handleViewableItemsChanged = useRef(({viewableItems}) => {
+  const handleViewableItemsChanged = useRef(({ viewableItems }) => {
     setActiveSlide(viewableItems[0].index);
   });
-  const {width, height} = Dimensions.get('window');
+  const { width, height } = Dimensions.get('window');
 
   const animation = useRef(null);
 
@@ -131,14 +191,14 @@ const HomeScreen = ({navigation}) => {
   }
   if (isError) return <Text>Error</Text>;
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <Pressable
       onPress={() => {
         const slug = item.slug.replace('https://e-psikiyatri.com/', '');
-        navigation.navigate('ContentScreen', {slug: slug});
+        navigation.navigate('ContentScreen', { slug: slug });
       }}>
       <View style={styles.sliderContainer}>
-        <Image source={{uri: item.image}} style={styles.sliderImage} />
+        <Image source={{ uri: item.image }} style={styles.sliderImage} />
         <View style={styles.titleContainer}>
           <Text style={styles.titleInsideImage}>{item.title}</Text>
         </View>
@@ -146,17 +206,17 @@ const HomeScreen = ({navigation}) => {
     </Pressable>
   );
 
-  const renderMostReadItem = ({item}) => {
+  const renderMostReadItem = ({ item }) => {
     const formattedDate = dateformat(item.updated_at, 'dd/mm/yyyy');
 
     return (
       <Pressable
         onPress={() => {
           const slug = item.slug.replace('https://e-psikiyatri.com/', '');
-          navigation.navigate('ContentScreen', {slug: slug});
+          navigation.navigate('ContentScreen', { slug: slug });
         }}>
         <View style={styles.mostReadItem}>
-          <Image source={{uri: item.image}} style={styles.mostReadImage} />
+          <Image source={{ uri: item.image }} style={styles.mostReadImage} />
           <LinearGradient
             colors={['transparent', 'black']}
             style={styles.titleBottomContainer}>
@@ -167,13 +227,13 @@ const HomeScreen = ({navigation}) => {
               {item.title}
             </Text>
           </LinearGradient>
-          <View style={{paddingLeft: 10}}></View>
+          <View style={{ paddingLeft: 10 }}></View>
         </View>
       </Pressable>
     );
   };
 
-  const {data, isLoading, isError, refetch} = useGetContentQuery();
+  const { data, isLoading, isError, refetch } = useGetContentQuery();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -237,12 +297,12 @@ const HomeScreen = ({navigation}) => {
   }, []);
 
   return (
-    <View style={{flex: 1, backgroundColor: '#f3f3f3'}}>
+    <View style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
       <RandevuAl />
       <GoUp scrollViewRef={scrollViewRef} />
 
       <ScrollView
-        style={{marginBottom: 50, flex: 1}}
+        style={{ marginBottom: 50, flex: 1 }}
         ref={scrollViewRef}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -293,12 +353,12 @@ const HomeScreen = ({navigation}) => {
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{width: 'auto'}}>
+            contentContainerStyle={{ width: 'auto' }}>
             {mostRead.map((item, index) => (
               <View
                 key={index.toString()}
-                style={{borderRadius: 20, overflow: 'hidden'}}>
-                {renderMostReadItem({item})}
+                style={{ borderRadius: 20, overflow: 'hidden' }}>
+                {renderMostReadItem({ item })}
               </View>
             ))}
           </ScrollView>
@@ -344,13 +404,13 @@ const HomeScreen = ({navigation}) => {
               <FlatList
                 data={menuData}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() => {
                       if (item.url) {
                         Linking.openURL(item.url);
                       } else if (item.screen) {
-                        navigation.navigate(item.screen, {slug: item.slug});
+                        navigation.navigate(item.screen, { slug: item.slug });
                       }
                     }}>
                     <View
@@ -361,9 +421,9 @@ const HomeScreen = ({navigation}) => {
                       }}>
                       <Image
                         source={item.icon}
-                        style={{width: 30, height: 30, marginRight: 15}}
+                        style={{ width: 30, height: 30, marginRight: 15 }}
                       />
-                      <Text style={{color: 'black'}}>{item.text}</Text>
+                      <Text style={{ color: 'black' }}>{item.text}</Text>
                     </View>
                   </TouchableOpacity>
                 )}
@@ -371,7 +431,7 @@ const HomeScreen = ({navigation}) => {
               />
 
               <View>
-                <Text style={{textAlign: 'center'}}>Versiyon 1.0.0</Text>
+                <Text style={{ textAlign: 'center' }}>Versiyon 1.0.0</Text>
               </View>
             </View>
           </View>
