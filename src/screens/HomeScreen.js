@@ -34,69 +34,34 @@ import { changeIcon, resetIcon } from 'react-native-change-icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
-  const [currentIcon, setCurrentIcon] = useState(null);
 
   const currentDate = new Date();
-
   const currentMonth = currentDate.getMonth() + 1;
   const currentDay = currentDate.getDate();
 
   useEffect(() => {
-    const loadIconData = async () => {
+    const changeAppIcon = async () => {
       try {
+        console.log("changeAppIcon is triggered");
         const didChangeLogo = await AsyncStorage.getItem('user.didChangeLogo');
-        const storedDate = await AsyncStorage.getItem('iconChangedDate');
+        console.log(`didChangeLogo: ${didChangeLogo}`);
+        const shouldChange = didChangeLogo === 'true';
 
-        if (didChangeLogo === 'true' && storedDate) {
-          const date = new Date(storedDate);
-          const difference = Math.abs(currentDate - date);
-          const differenceInDays = Math.floor(difference / (1000 * 60 * 60 * 24));
-
-          if (differenceInDays >= 30 && currentIcon === 'Ekim') {
-            await resetIcon();
-            setCurrentIcon(null);
-            await AsyncStorage.removeItem('iconChangedDate');
-            await AsyncStorage.setItem('user.didChangeLogo', 'false');
-          } else {
-            setCurrentIcon('Ekim');
-          }
+        if (currentMonth === 10 && currentDay === 29 && !shouldChange) {
+          Platform.OS === 'android' ? changeIcon('ekim') : await changeIcon('Ekim');
+          await AsyncStorage.setItem('user.didChangeLogo', 'true');
+        } else if (shouldChange && (currentDay !== 29 || currentMonth !== 10)) {
+          await resetIcon();
+          await AsyncStorage.setItem('user.didChangeLogo', 'false');
         }
       } catch (error) {
-        console.warn('Error loading icon data:', error);
-      }
-    };
-
-    loadIconData();
-  }, []);
-
-  useEffect(() => {
-    const changeAppIcon = async () => {
-      if (currentMonth === 10 && currentDay === 26 && currentIcon !== 'Ekim') {
-        try {
-          await changeIcon('Ekim');
-          setCurrentIcon('Ekim');
-          await AsyncStorage.setItem('iconChangedDate', currentDate.toString());
-          await AsyncStorage.setItem('user.didChangeLogo', 'true');
-        } catch (error) {
-          if (error.message === 'IOS:ICON_ALREADY_USED') {
-            console.warn("Icon is already in use.");
-          } else {
-            console.warn("Error changing icon:", error);
-          }
-        }
-      } else if (currentIcon === 'Ekim' && (currentDay !== 26 || currentMonth !== 10)) {
-        try {
-          await resetIcon();
-          setCurrentIcon(null);
-          await AsyncStorage.setItem('user.didChangeLogo', 'false');
-        } catch (error) {
-          console.warn("Error resetting icon:", error);
-        }
+        console.warn("Error:", error);
       }
     };
 
     changeAppIcon();
-  }, [currentDay, currentMonth, currentIcon]);
+  }, [currentDay, currentMonth]);
+
 
   const menuData = [
     {
@@ -278,8 +243,6 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
-      console.log('Connection type', state.type);
-      console.log('Is connected?', state.isConnected);
       setIsConnected(state.isConnected);
 
       if (!state.isConnected) {
