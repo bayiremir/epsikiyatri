@@ -19,7 +19,8 @@ end
 
 target 'epsikiyatri' do
   pod 'RNFBAnalytics', path: '../node_modules/@react-native-firebase/analytics'
-
+  pod 'Firebase/Analytics'
+  pod 'Firebase/AnalyticsWithoutAdIdSupport'
   config = use_native_modules!
 
   # Flags change depending on the env values.

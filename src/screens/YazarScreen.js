@@ -94,6 +94,11 @@ const YazarScreen = ({navigation}) => {
       icon: require('../../assets/photo/icons/cloud.png'),
       screen: 'CategoryCloud',
     },
+    {
+      text: 'Bildirim Ayarları',
+      icon: require('../../assets/photo/icons/alarm.png'),
+      screen: 'NotificationSettings',
+    },
   ];
 
   useEffect(() => {

@@ -68,8 +68,6 @@ export default function App() {
 
   async function saveTokenToFirestore(token) {
     try {
-      // Token'i belirlediğiniz bir Firestore koleksiyonuna kaydedebilirsiniz.
-      // Örnek olarak "user_tokens" koleksiyonunu kullandım. İhtiyacınıza göre değiştirebilirsiniz.
       await firestore().collection('user_tokens').add({
         token: token,
         createdAt: firestore.Timestamp.now(),

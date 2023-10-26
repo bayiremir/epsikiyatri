@@ -12,6 +12,7 @@
   [FIRApp configure];
   [UNUserNotificationCenter currentNotificationCenter].delegate = self;
   [FIRMessaging messaging].delegate = self;
+  
 
   self.moduleName = @"epsikiyatri";
   self.initialProps = @{};

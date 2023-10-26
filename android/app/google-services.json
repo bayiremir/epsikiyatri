@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "982200569348",
-    "project_id": "e-psikiyatri",
-    "storage_bucket": "e-psikiyatri.appspot.com"
+    "project_number": "390299522289",
+    "project_id": "e-psikiyatricom---ga4",
+    "storage_bucket": "e-psikiyatricom---ga4.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:982200569348:android:5521dbfa28431f43cd2f51",
+        "mobilesdk_app_id": "1:390299522289:android:493e343370e14eaa58c550",
         "android_client_info": {
           "package_name": "com.epsikiyatri"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyACyE69Vyjnjk3u-iB8WQ5TqMKIPNMSzOg"
+          "current_key": "AIzaSyDO_8X25G7v_CGkJiwMyFf_29wEY3Zlfsk"
         }
       ],
       "services": {

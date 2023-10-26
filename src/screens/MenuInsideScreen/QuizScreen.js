@@ -2,9 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
-  Linking,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   FlatList,
   Modal,
@@ -13,6 +11,7 @@ import {
   Alert,
   ScrollView,
   KeyboardAvoidingView,
+  Linking,
 } from 'react-native';
 import {settings} from '../../utils/settings';
 import {ArrowLeftIcon as ArrowLeftIconOutline} from 'react-native-heroicons/outline';
@@ -22,6 +21,7 @@ import {
 } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import InputText from 'react-native-input-validator';
+import analytics from '@react-native-firebase/analytics';
 
 const QuizScreen = () => {
   const [email, setEmail] = useState('');
@@ -101,6 +101,7 @@ const QuizScreen = () => {
       fetchTests();
 
       setIsEmailSent(true);
+      await analytics().logEvent('email_sent');
     } catch (error) {
       console.error('sendEmail Error:', error);
       setError('Email could not be sent. Please try again.');
@@ -259,6 +260,7 @@ const QuizScreen = () => {
       setIsLoading(false);
 
       if (response.status === 200) {
+        await analytics().logEvent('test_completed');
         setModalContent({
           title: '🎉 Test Tamamlandı',
           message: 'Sonuçlarınız Mailinize iletilecektir.',
@@ -282,6 +284,13 @@ const QuizScreen = () => {
       setModalVisible(true);
     }
   };
+  useEffect(() => {
+    const trackTestEntry = async () => {
+      await analytics().logEvent('test_entered');
+    };
+
+    trackTestEntry();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -381,9 +390,9 @@ const QuizScreen = () => {
                     )}
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => {
-                      // Link açma kodu
-                    }}>
+                      onPress={() => {
+                        Linking.openURL('https://npistanbul.com/kisisel-verilerin-islenmesi-hakkinda-bilgilendirme-formu/');
+                      }}>
                     <Text style={styles.checkboxLabel}>
                       Kişisel Verilerin Korunması Kanunu kapsamında
                       Bilgilendirme ve Aydınlatma Metnini okudum, onayladım. (*)
