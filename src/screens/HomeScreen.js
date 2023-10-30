@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   FlatList,
@@ -13,13 +13,13 @@ import {
   PanResponder,
   TouchableOpacity,
 } from 'react-native';
-import { Divider } from 'react-native-paper';
-import { settings } from '../utils/settings';
-import { colors } from '../utils/colors';
+import {Divider} from 'react-native-paper';
+import {settings} from '../utils/settings';
+import {colors} from '../utils/colors';
 import dateformat from 'dateformat';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { Linking } from 'react-native';
-import { useGetContentQuery } from '../redux/slices/HomeScreenSlices';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
+import {Linking} from 'react-native';
+import {useGetContentQuery} from '../redux/slices/HomeScreenSlices';
 import AdultPsychiatry from './HomeScreenDetailPage/AdultPsychiatry';
 import LastNewScreen from './HomeScreenDetailPage/LastNewsScreen';
 import RandevuAl from '../components/RandevuAl/RandevuAl';
@@ -30,38 +30,39 @@ import {
   Squares2X2Icon as Squares2X2IconOutline,
 } from 'react-native-heroicons/outline';
 import NetInfo from '@react-native-community/netinfo';
-import { changeIcon, resetIcon } from 'react-native-change-icon';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {changeIcon, resetIcon, getIcon} from 'react-native-change-icon';
 
-const HomeScreen = ({ navigation }) => {
-
+const HomeScreen = ({navigation}) => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentDay = currentDate.getDate();
 
+  const [iconName, setIconName] = useState('');
+
+  const getIconName = async () => {
+    try {
+      setIconName(await getIcon());
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const changeAppIcon = async () => {
-      try {
-        console.log("changeAppIcon is triggered");
-        const didChangeLogo = await AsyncStorage.getItem('user.didChangeLogo');
-        console.log(`didChangeLogo: ${didChangeLogo}`);
-        const shouldChange = didChangeLogo === 'true';
+    getIconName();
+  }, []);
 
-        if (currentMonth === 10 && currentDay === 29 && !shouldChange) {
-          Platform.OS === 'android' ? changeIcon('ekim') : await changeIcon('Ekim');
-          await AsyncStorage.setItem('user.didChangeLogo', 'true');
-        } else if (shouldChange && (currentDay !== 29 || currentMonth !== 11)) {
-          await resetIcon();
-          await AsyncStorage.setItem('user.didChangeLogo', 'false');
-        }
-      } catch (error) {ßßß
-        console.warn("Error:", error);
+  useEffect(() => {
+    if (iconName === 'Default') {
+      if (
+        (currentMonth === 10 && currentDay >= 28) ||
+        (currentMonth === 10 && currentDay <= 29)
+      ) {
+        Platform.OS === 'android' ? changeIcon('ekim') : changeIcon('Ekim');
+      } else {
+        resetIcon();
       }
-    };
-
-    changeAppIcon();
-  }, [currentDay, currentMonth]);
-
+    }
+  }, [iconName, currentMonth, currentDay]);
 
   const menuData = [
     {
@@ -132,10 +133,10 @@ const HomeScreen = ({ navigation }) => {
     itemVisiblePercentThreshold: 50,
   });
 
-  const handleViewableItemsChanged = useRef(({ viewableItems }) => {
+  const handleViewableItemsChanged = useRef(({viewableItems}) => {
     setActiveSlide(viewableItems[0].index);
   });
-  const { width, height } = Dimensions.get('window');
+  const {width, height} = Dimensions.get('window');
 
   const animation = useRef(null);
 
@@ -156,14 +157,14 @@ const HomeScreen = ({ navigation }) => {
   }
   if (isError) return <Text>Error</Text>;
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <Pressable
       onPress={() => {
         const slug = item.slug.replace('https://e-psikiyatri.com/', '');
-        navigation.navigate('ContentScreen', { slug: slug });
+        navigation.navigate('ContentScreen', {slug: slug});
       }}>
       <View style={styles.sliderContainer}>
-        <Image source={{ uri: item.image }} style={styles.sliderImage} />
+        <Image source={{uri: item.image}} style={styles.sliderImage} />
         <View style={styles.titleContainer}>
           <Text style={styles.titleInsideImage}>{item.title}</Text>
         </View>
@@ -171,17 +172,17 @@ const HomeScreen = ({ navigation }) => {
     </Pressable>
   );
 
-  const renderMostReadItem = ({ item }) => {
+  const renderMostReadItem = ({item}) => {
     const formattedDate = dateformat(item.updated_at, 'dd/mm/yyyy');
 
     return (
       <Pressable
         onPress={() => {
           const slug = item.slug.replace('https://e-psikiyatri.com/', '');
-          navigation.navigate('ContentScreen', { slug: slug });
+          navigation.navigate('ContentScreen', {slug: slug});
         }}>
         <View style={styles.mostReadItem}>
-          <Image source={{ uri: item.image }} style={styles.mostReadImage} />
+          <Image source={{uri: item.image}} style={styles.mostReadImage} />
           <LinearGradient
             colors={['transparent', 'black']}
             style={styles.titleBottomContainer}>
@@ -192,13 +193,13 @@ const HomeScreen = ({ navigation }) => {
               {item.title}
             </Text>
           </LinearGradient>
-          <View style={{ paddingLeft: 10 }}></View>
+          <View style={{paddingLeft: 10}}></View>
         </View>
       </Pressable>
     );
   };
 
-  const { data, isLoading, isError, refetch } = useGetContentQuery();
+  const {data, isLoading, isError, refetch} = useGetContentQuery();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -260,12 +261,12 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
+    <View style={{flex: 1, backgroundColor: '#f3f3f3'}}>
       <RandevuAl />
       <GoUp scrollViewRef={scrollViewRef} />
 
       <ScrollView
-        style={{ marginBottom: 50, flex: 1 }}
+        style={{marginBottom: 50, flex: 1}}
         ref={scrollViewRef}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -316,12 +317,12 @@ const HomeScreen = ({ navigation }) => {
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ width: 'auto' }}>
+            contentContainerStyle={{width: 'auto'}}>
             {mostRead.map((item, index) => (
               <View
                 key={index.toString()}
-                style={{ borderRadius: 20, overflow: 'hidden' }}>
-                {renderMostReadItem({ item })}
+                style={{borderRadius: 20, overflow: 'hidden'}}>
+                {renderMostReadItem({item})}
               </View>
             ))}
           </ScrollView>
@@ -367,13 +368,13 @@ const HomeScreen = ({ navigation }) => {
               <FlatList
                 data={menuData}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
+                renderItem={({item}) => (
                   <TouchableOpacity
                     onPress={() => {
                       if (item.url) {
                         Linking.openURL(item.url);
                       } else if (item.screen) {
-                        navigation.navigate(item.screen, { slug: item.slug });
+                        navigation.navigate(item.screen, {slug: item.slug});
                       }
                     }}>
                     <View
@@ -384,9 +385,9 @@ const HomeScreen = ({ navigation }) => {
                       }}>
                       <Image
                         source={item.icon}
-                        style={{ width: 30, height: 30, marginRight: 15 }}
+                        style={{width: 30, height: 30, marginRight: 15}}
                       />
-                      <Text style={{ color: 'black' }}>{item.text}</Text>
+                      <Text style={{color: 'black'}}>{item.text}</Text>
                     </View>
                   </TouchableOpacity>
                 )}
@@ -394,7 +395,7 @@ const HomeScreen = ({ navigation }) => {
               />
 
               <View>
-                <Text style={{ textAlign: 'center' }}>Versiyon 1.0.0</Text>
+                <Text style={{textAlign: 'center'}}>Versiyon 1.0.0</Text>
               </View>
             </View>
           </View>
