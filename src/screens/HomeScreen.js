@@ -50,11 +50,11 @@ const HomeScreen = ({ navigation }) => {
         if (currentMonth === 10 && currentDay === 29 && !shouldChange) {
           Platform.OS === 'android' ? changeIcon('ekim') : await changeIcon('Ekim');
           await AsyncStorage.setItem('user.didChangeLogo', 'true');
-        } else if (shouldChange && (currentDay !== 29 || currentMonth !== 10)) {
+        } else if (shouldChange && (currentDay !== 29 || currentMonth !== 11)) {
           await resetIcon();
           await AsyncStorage.setItem('user.didChangeLogo', 'false');
         }
-      } catch (error) {
+      } catch (error) {ßßß
         console.warn("Error:", error);
       }
     };

@@ -26,6 +26,15 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
+			<key>Kasim</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Kasim</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
 			<key>Ekim</key>
 			<dict>
 				<key>UIPrerenderedIcon</key>
