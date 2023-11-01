@@ -20,6 +20,8 @@ import {
   Squares2X2Icon as Squares2X2IconOutline,
   Square3Stack3DIcon as Square3Stack3DIconOutline,
 } from 'react-native-heroicons/outline';
+import LottieView from 'lottie-react-native';
+
 
 const AdultPsychiatry = () => {
   const [isAlternateLayout, setIsAlternateLayout] = useState(false);
@@ -36,6 +38,24 @@ const AdultPsychiatry = () => {
   const handleItemPress = slug => {
     const cleanSlug = slug.replace('https://e-psikiyatri.com/', '');
     navigation.navigate('ContentScreen', {slug: cleanSlug});
+  };
+  const renderLoading = () => {
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          ref={animation}
+          style={{
+            resizeMode: 'contain',
+            margin: 10,
+            height: settings.CARD_WIDTH,
+            width: settings.CARD_WIDTH * 2,
+          }}
+          source={require('../../../assets/skelatonAnimation.json')} // replace this with your actual path
+          autoPlay
+          loop
+        />
+      </View>
+    );
   };
 
   const renderMostReadItem = ({item}) => {
@@ -122,16 +142,19 @@ const AdultPsychiatry = () => {
               <View style={styles.featuredNewsLine}></View>
             </View>
           </View>
+          {isLoading ? renderLoading() : (
           <ScrollView
             horizontal={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{width: 'auto'}}>
+            contentContainerStyle={{ width: 'auto' }}
+          >
             {mostRead.map((item, index) => (
-              <View key={index.toString()} style={{overflow: 'hidden'}}>
-                {renderMostReadItem({item})}
+              <View key={index.toString()} style={{ overflow: 'hidden' }}>
+                {renderMostReadItem({ item })}
               </View>
             ))}
           </ScrollView>
+        )}
         </View>
       </View>
     </SafeAreaView>

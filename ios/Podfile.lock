@@ -848,8 +848,8 @@ PODS:
   - libwebp/webp (1.3.2):
     - libwebp/sharpyuv
   - lottie-ios (4.3.3)
-  - lottie-react-native (6.3.1):
-    - lottie-ios (~> 4.3.0)
+  - lottie-react-native (6.4.0):
+    - lottie-ios (~> 4.3.3)
     - React-Core
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
@@ -1594,7 +1594,7 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   lottie-ios: 25e7b2675dad5c3ddad369ac9baab03560c5bfdd
-  lottie-react-native: c9f1db4f4124dcce9f8159e65d8dc6e8bcb11fb4
+  lottie-react-native: 3a3084faddd3891c276f23fd6e797b83f2021bbc
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1

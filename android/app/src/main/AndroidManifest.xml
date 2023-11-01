@@ -16,32 +16,32 @@
         android:launchMode="singleTask"
         android:windowSoftInputMode="adjustResize"
         android:exported="true">
+      </activity>
+
+      <!-- Default alias with launcher intent filter -->
+      <activity-alias
+        android:name=".MainActivityDefault"
+        android:enabled="true"
+        android:exported="true"
+        android:icon="@mipmap/ic_launcher"
+        android:targetActivity=".MainActivity">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
-      </activity>
-        <activity-alias
-            android:name=".MainActivityDefault"
-            android:enabled="true"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-        <activity-alias
-            android:name=".MainActivityekim"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ekim"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
+      </activity-alias>
+
+      <!-- Additional alias with different icon -->
+      <activity-alias
+        android:name=".MainActivityekim"
+        android:enabled="false"
+        android:exported="true"
+        android:icon="@mipmap/ekim"
+        android:targetActivity=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity-alias>
     </application>
 </manifest>

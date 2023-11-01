@@ -96,7 +96,7 @@ export default function App() {
     }).start(() => {
       setTimeout(() => {
         setAppIsReady(true);
-      }, 1000);
+      }, 500);
     });
 
     // İzin istemek ve token'i kaydetmek için fonksiyonumuzu çağıralım.

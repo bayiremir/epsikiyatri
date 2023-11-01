@@ -304,7 +304,7 @@ const CategoryScreen = () => {
                           source={item.icon}
                           style={{width: 30, height: 30, marginRight: 15}}
                         />
-                        <Text>{item.text}</Text>
+                        <Text style={{color: 'black'}}>{item.text}</Text>
                       </View>
                     </TouchableOpacity>
                   )}

@@ -111,6 +111,11 @@ const HomeScreen = ({navigation}) => {
       icon: require('../../assets/photo/icons/cloud.png'),
       screen: 'CategoryCloud',
     },
+    {
+      text: 'Bildirim Ayarları',
+      icon: require('../../assets/photo/icons/alarm.png'),
+      screen: 'NotificationSettings',
+    },
   ];
 
   const [activeSlide, setActiveSlide] = useState(0);
@@ -150,7 +155,7 @@ const HomeScreen = ({navigation}) => {
             height: settings.CARD_WIDTH,
             width: settings.CARD_WIDTH * 2,
           }}
-          source={require('../../assets/photo/loading.json')}
+          source={require('../../assets/loadingAnimation.json')}
         />
       </View>
     );
