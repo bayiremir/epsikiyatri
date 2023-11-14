@@ -21,6 +21,7 @@ import {
   Bars3Icon as Bars3IconOutline,
   MagnifyingGlassIcon as MagnifyingGlassIconOutline,
 } from 'react-native-heroicons/outline';
+import analytics from '@react-native-firebase/analytics';
 
 const CategoryScreen = () => {
   const [categories, setCategories] = useState([]);
@@ -45,6 +46,7 @@ const CategoryScreen = () => {
       },
     }),
   ).current;
+
 
   useEffect(() => {
     if (!isFocused) {

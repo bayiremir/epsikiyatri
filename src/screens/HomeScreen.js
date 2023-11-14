@@ -30,39 +30,8 @@ import {
   Squares2X2Icon as Squares2X2IconOutline,
 } from 'react-native-heroicons/outline';
 import NetInfo from '@react-native-community/netinfo';
-import {changeIcon, resetIcon, getIcon} from 'react-native-change-icon';
 
 const HomeScreen = ({navigation}) => {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
-  const currentDay = currentDate.getDate();
-
-  const [iconName, setIconName] = useState('');
-
-  const getIconName = async () => {
-    try {
-      setIconName(await getIcon());
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getIconName();
-  }, []);
-
-  useEffect(() => {
-    if (iconName === 'Default') {
-      if (
-        (currentMonth === 10 && currentDay >= 28) ||
-        (currentMonth === 10 && currentDay <= 29)
-      ) {
-        Platform.OS === 'android' ? changeIcon('ekim') : changeIcon('Ekim');
-      } else {
-        resetIcon();
-      }
-    }
-  }, [iconName, currentMonth, currentDay]);
 
   const menuData = [
     {

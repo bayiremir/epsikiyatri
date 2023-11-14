@@ -3,12 +3,25 @@ import {View, Text, TouchableOpacity, Linking} from 'react-native';
 import {Platform} from 'react-native';
 import {settings} from '../../utils/settings';
 import {PaperAirplaneIcon as PaperAirplaneIcon} from 'react-native-heroicons/outline';
+import analytics from '@react-native-firebase/analytics';
 
 const RandevuAl = () => {
   const bottomValue = Platform.select({
-    ios: settings.CARD_WIDTH / 2.5,
-    android: settings.CARD_WIDTH / 3, 
+    ios: settings.CARD_WIDTH / 2.3,
+    android: settings.CARD_WIDTH / 3,
   });
+
+  const handlePress = async () => {
+    try {
+      await Linking.openURL('https://online.npistanbul.com/login');
+      await analytics().logEvent('randevu_button_mobileApp', {
+        content_type: 'button',
+        content_id: 'RandevuAlButtonu',
+      });
+    } catch (error) {
+      console.error('An error occurred', error);
+    }
+  };
 
   return (
     <View
@@ -29,13 +42,13 @@ const RandevuAl = () => {
         shadowRadius: 2,
       }}>
       <TouchableOpacity
-        onPress={() => Linking.openURL('https://online.npistanbul.com/login')}
+        onPress={handlePress}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
         }}>
         <PaperAirplaneIcon
-          style={{transform: [{rotate: '320deg'}]}}
+          style={{transform: [{rotate: '360deg'}]}}
           width={25}
           height={25}
           left={3}

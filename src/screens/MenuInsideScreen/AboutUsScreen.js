@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,9 @@ import {
   FlatList,
 } from 'react-native';
 import Header from '../../components/Header';
-import { settings } from '../../utils/settings';
-import { useNavigation } from '@react-navigation/native';
-import { ArrowLeftIcon as ArrowLeftIconOutline } from 'react-native-heroicons/outline';
+import {settings} from '../../utils/settings';
+import {useNavigation} from '@react-navigation/native';
+import {ArrowLeftIcon as ArrowLeftIconOutline} from 'react-native-heroicons/outline';
 import LinearGradient from 'react-native-linear-gradient';
 
 const AboutUsScreen = () => {
@@ -42,11 +42,9 @@ const AboutUsScreen = () => {
         const data = await response.json();
         const menus = data.menus;
 
-        // "Tıbbi Birimler" kategorisini bulma:
-        const medicalUnitsCategory = menus.find(
-          menu => menu.name === 'Hakkımızda',
-        );
-
+        const medicalUnitsCategory = menus.find(menu => menu.name === 'Kurumsal');
+        const hakkimizdaCategory = medicalUnitsCategory?.children.find(child => child.id === 'Hakkımızda');
+        
         if (medicalUnitsCategory) {
           setMedicalUnits(medicalUnitsCategory.children || []);
         }
@@ -72,11 +70,11 @@ const AboutUsScreen = () => {
         </TouchableOpacity>
         <Image
           source={require('../../../assets/photo/logo.png')}
-          style={{ ...styles.logo, alignSelf: 'center' }}
+          style={{...styles.logo, alignSelf: 'center'}}
         />
         <View />
       </View>
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1}}>
         <ScrollView>
           <View style={styles.mostReadHeaderContainer}>
             <LinearGradient
@@ -89,27 +87,28 @@ const AboutUsScreen = () => {
             .filter(unit => unit.url !== '/iletisim')
             .map(unit => (
               <View key={unit.id} style={styles.homeScreenCardContainer}>
-                <View style={styles.categoryItem}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('ContentScreen', { slug: unit.url })
-                    }>
-                    <View style={styles.categoryItemInnerContainer}>
-                      <Text style={styles.categoryItemText}>{unit.name}</Text>
-                      {unit.children && unit.children.length > 0 && (
-                        <TouchableOpacity
-                          onPress={() =>
-                            toggleExpandCategory(unit.id)
-                          }></TouchableOpacity>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('ContentScreen', {slug: unit.url})
+                  }
+                  style={styles.categoryItem}>
+                  <View style={styles.categoryItemInnerContainer}>
+                    <Text style={styles.categoryItemText}>{unit.name}</Text>
+                    {unit.children && unit.children.length > 0 && (
+                      <TouchableOpacity
+                        onPress={() =>
+                          toggleExpandCategory(unit.id)
+                        }></TouchableOpacity>
+                    )}
+                  </View>
+                </TouchableOpacity>
                 {expandedCategories.includes(unit.id) &&
                   unit.children &&
                   unit.children.map(child => (
-                    <TouchableOpacity key={child.id} style={{ marginLeft: 20 }}>
-                      <Text style={styles.categoryItem}>{child.name}</Text>
+                    <TouchableOpacity
+                      key={child.id}
+                      style={styles.childItemContainer}>
+                      <Text style={styles.childItemText}>{child.name}</Text>
                     </TouchableOpacity>
                   ))}
               </View>
@@ -146,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     elevation: 4,
     shadowColor: '#00000040',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.4,
     shadowRadius: 4,
     justifyContent: 'flex-start',

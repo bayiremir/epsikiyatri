@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -10,18 +10,19 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import RenderHtml from 'react-native-render-html';
-import { settings } from '../../utils/settings';
-import { colors } from '../../utils/colors';
-import { useNavigation } from '@react-navigation/native';
+import {settings} from '../../utils/settings';
+import {colors} from '../../utils/colors';
+import {useNavigation} from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import { ArrowLeftIcon as ArrowLeftIconOutline } from 'react-native-heroicons/outline';
+import {ArrowLeftIcon as ArrowLeftIconOutline} from 'react-native-heroicons/outline';
 import GoUp from '../../components/GoUp/GoUp';
+import analytics from '@react-native-firebase/analytics';
 
-const YazarDetail = ({ route }) => {
+const YazarDetail = ({route}) => {
   const [isLoadingMore, setIsLoadingMore] = useState(false); // Yeni eklenen state
-  const { slug } = route.params;
+  const {slug} = route.params;
   const [yazar, setYazar] = useState(null);
-  const { width } = useWindowDimensions();
+  const {width} = useWindowDimensions();
   const animation = useRef(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -30,14 +31,34 @@ const YazarDetail = ({ route }) => {
   const [page, setPage] = useState(1);
   const scrollViewRef = useRef();
 
-  const halfwayIndex =
-    yazar && yazar.resume ? Math.floor(yazar.resume.length / 2) : 0;
-  const firstHalfHtml = yazar ? yazar.resume.substring(0, halfwayIndex) : '';
-  const secondHalfHtml = yazar ? yazar.resume.substring(halfwayIndex) : '';
-
+  if (yazar && yazar.resume) {
+    if (yazar.resume.length > 120) {
+      const halfwayIndex = Math.floor(yazar.resume.length / 2);
+      firstHalfHtml = yazar.resume.substring(0, halfwayIndex);
+      secondHalfHtml = yazar.resume.substring(halfwayIndex);
+    } else {
+      firstHalfHtml = yazar.resume;
+    }
+  }
   const handleContentPress = contentSlug => {
-    navigation.navigate('ContentScreen', { slug: contentSlug });
+    navigation.navigate('ContentScreen', {slug: contentSlug});
   };
+
+  const logYazarDetailEvent = async (
+    yazar_title,
+    yazar_name,
+    yazar_surname,
+  ) => {
+    console.log(yazar_title, yazar_name, yazar_surname);
+    await analytics().logEvent('yazarlar_mobileapp', {
+      yazarlar: yazar.title + yazar.name + ' ' + yazar.surname,
+    });
+  };
+  useEffect(() => {
+    if (yazar) {
+      logYazarDetailEvent(yazar.title, yazar.name, yazar.surname);
+    }
+  }, [yazar]);
 
   useEffect(() => {
     fetch(`https://yp.uskudar.dev/api/staff/detail/3/${slug}/tr?token=1`)
@@ -71,15 +92,13 @@ const YazarDetail = ({ route }) => {
 
   const handleLoadMore = () => {
     if (!isLoadingMore) {
-      // Yeni yazılar yüklenirken tekrar tıklanamasın
-      setIsLoadingMore(true); // Loading animasyonunu göster
+      setIsLoadingMore(true);
       setPage(prevPage => prevPage + 1);
     }
   };
 
   useEffect(() => {
     if (page > 1) {
-      // İlk sayfa değilse
       loadContents();
     }
   }, [page]);
@@ -111,7 +130,7 @@ const YazarDetail = ({ route }) => {
               width: '100%',
               backgroundColor: colors.darkPurple,
               borderBottomLeftRadius: Dimensions.get('screen').height / 4,
-              transform: [{ scaleX: 1.2 }],
+              transform: [{scaleX: 1.2}],
               borderBottomRightRadius: Dimensions.get('screen').height / 4,
             }}
           />
@@ -124,11 +143,7 @@ const YazarDetail = ({ route }) => {
               marginTop: 60,
             }}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <ArrowLeftIconOutline
-                width={35}
-                height={35}
-                color="black"
-              />
+              <ArrowLeftIconOutline width={35} height={35} color="black" />
             </TouchableOpacity>
             <View />
           </View>
@@ -139,10 +154,18 @@ const YazarDetail = ({ route }) => {
             style={styles.logo}
           />
         </View>
-        <View style={{ alignItems: 'center' }}>
-          <Image source={{ uri: yazar.image }} style={styles.yazarImage} />
+        <View style={{alignItems: 'center'}}>
+          {!yazar.image ? (
+            <Image
+              source={{
+                uri: 'https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg',
+              }}
+            />
+          ) : (
+            <Image source={{uri: yazar.image}} style={styles.yazarImage} />
+          )}
         </View>
-        <View style={{ padding: 20 }}>
+        <View style={{padding: 20}}>
           <Text style={styles.yazarName}>
             {yazar.title} {yazar.name} {yazar.surname}
           </Text>
@@ -157,18 +180,18 @@ const YazarDetail = ({ route }) => {
               a: {
                 paddingTop: 10,
               },
-              h1: { paddingTop: 20, lineHeight: 32, fontSize: 22 },
-              h2: { paddingTop: 20 },
-              h3: { paddingTop: 20 },
-              h4: { paddingTop: 20 },
-              h5: { paddingTop: 20 },
-              h6: { paddingTop: 20 },
+              h1: {paddingTop: 20, lineHeight: 32, fontSize: 22},
+              h2: {paddingTop: 20},
+              h3: {paddingTop: 20},
+              h4: {paddingTop: 20},
+              h5: {paddingTop: 20},
+              h6: {paddingTop: 20},
             }}
-            baseStyle={{ lineHeight: 18, color: 'black' }}
-            source={{ html: showFullText ? yazar.resume : firstHalfHtml }}
+            baseStyle={{lineHeight: 18, color: 'black'}}
+            source={{html: showFullText ? yazar.resume : firstHalfHtml}}
           />
 
-          {!showFullText && (
+          {!showFullText && firstHalfHtml.length > 100 && (
             <TouchableOpacity
               onPress={() => setShowFullText(true)}
               style={styles.readMoreButton}>
@@ -211,7 +234,7 @@ const YazarDetail = ({ route }) => {
                     textAlign: 'center',
                     fontWeight: '500',
                     margin: 15,
-                    color: 'black'  // Bu satır yazının rengini siyah yapar
+                    color: 'black', // Bu satır yazının rengini siyah yapar
                   }}>
                   {content.title}
                 </Text>
@@ -259,7 +282,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
     margin: 15,
-    color: 'black'
+    color: 'black',
   },
   yazarImage: {
     width: settings.CARD_WIDTH * 1,
@@ -271,7 +294,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: 10,
-    color: "black",
+    color: 'black',
   },
   bioHeader: {
     fontSize: 28,
@@ -279,8 +302,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
-    color: "black",
-
+    color: 'black',
   },
   yazarBio: {
     fontSize: 16,
@@ -307,8 +329,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.darkPurple,
     borderRadius: 5,
     alignItems: 'center',
-    justifyContent: 'center', // Bu da merkezleme yardımcı olabilir
-    width: Dimensions.get('window').width - 40, // Ekran genişliği kadar olacak
+    justifyContent: 'center',
+    width: Dimensions.get('window').width - 40,
   },
   readMoreText: {
     color: 'white',
@@ -339,7 +361,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     elevation: 4,
     shadowColor: '#00000040',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.4,
     shadowRadius: 4,
     alignItems: 'center',
