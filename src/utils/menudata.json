@@ -1,0 +1,53 @@
+[
+    {
+        "text": "Tıbbi Birimler",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/careEp.png",
+        "screen": "MedicalUnits"
+    },
+    {
+        "text": "Psikolojik Testler",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/quizEp.png",
+        "screen": "QuizScreen"
+    },
+    {
+        "text": "Hakkımızda",
+        "slug": "/hakimizda",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/infoEp.png",
+        "screen": "AboutUsScreen"
+    },
+    {
+        "text": "Gen Temelli Tedaviler",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/geneEp.png",
+        "screen": "GeneticCounseling"
+    },
+    {
+        "text": "Yayınlarımız",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/publicationEp.png",
+        "screen": "OurPublications"
+    },
+    {
+        "text": "Sosyal Sorumluluk Projeleri",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/worldwideEp.png",
+        "screen": "SocialProjectScreen"
+    },
+    {
+        "text": "Online Randevu",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/paper-planeEp.png",
+        "url": "https://online.npistanbul.com/login"
+    },
+    {
+        "text": "Köşe Yazarları",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/content-writingEp.png",
+        "screen": "CornerWriterScreen"
+    },
+    {
+        "text": "Kategori Bulutu",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/cloudEp.png",
+        "screen": "CategoryCloud"
+    },
+    {
+        "text": "Bildirim Ayarları",
+        "icon": "https://mobile.uskudar.dev/assets/img/icon/alarmEp.png",
+        "screen": "NotificationSettings"
+    }
+]

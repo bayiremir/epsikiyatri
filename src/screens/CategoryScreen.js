@@ -23,6 +23,7 @@ import {
   ChevronDownIcon as ChevronDownIconOutline,
 } from 'react-native-heroicons/outline';
 import analytics from '@react-native-firebase/analytics';
+import menuData from "../utils/menudata.json"
 
 const CategoryScreen = () => {
   const [categories, setCategories] = useState([]);
@@ -110,59 +111,7 @@ const CategoryScreen = () => {
       }, {})
     : categories;
 
-  const menuData = [
-    {
-      text: 'Tıbbi Birimler',
-      icon: require('../../assets/photo/icons/care.png'),
-      screen: 'MedicalUnits',
-    },
-    {
-      text: 'Psikolojik Testler',
-      icon: require('../../assets/photo/icons/quiz.png'),
-      screen: 'QuizScreen',
-    },
-    {
-      text: 'Hakkımızda',
-      slug: '/hakimizda',
-      icon: require('../../assets/photo/icons/info.png'),
-      screen: 'AboutUsScreen',
-    },
-    {
-      text: 'Gen Temelli Tedaviler',
-      icon: require('../../assets/photo/icons/gene.png'),
-      screen: 'GeneticCounseling',
-    },
-    {
-      text: 'Yayınlarımız',
-      icon: require('../../assets/photo/icons/publication.png'),
-      screen: 'OurPublications',
-    },
-    {
-      text: 'Sosyal Sorumluluk Projeleri',
-      icon: require('../../assets/photo/icons/worldwide.png'),
-      screen: 'SocialProjectScreen',
-    },
-    {
-      text: 'Online Randevu',
-      icon: require('../../assets/photo/icons/paper-plane.png'),
-      url: 'https://online.npistanbul.com/login',
-    },
-    {
-      text: 'Köşe Yazarları',
-      icon: require('../../assets/photo/icons/content-writing.png'),
-      screen: 'CornerWriterScreen',
-    },
-    {
-      text: 'Kategori Bulutu',
-      icon: require('../../assets/photo/icons/cloud.png'),
-      screen: 'CategoryCloud',
-    },
-    {
-      text: 'Bildirim Ayarları',
-      icon: require('../../assets/photo/icons/alarm.png'),
-      screen: 'NotificationSettings',
-    },
-  ];
+  
 
   return (
     <View style={{flex: 1}}>
@@ -313,7 +262,7 @@ const CategoryScreen = () => {
                           padding: 15,
                         }}>
                         <Image
-                          source={item.icon}
+                          source={{uri: item.icon}}
                           style={{width: 30, height: 30, marginRight: 15}}
                         />
                         <Text style={{color: 'black'}}>{item.text}</Text>
